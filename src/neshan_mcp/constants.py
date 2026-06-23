@@ -12,7 +12,7 @@ class Endpoints:
 
     SEARCH = "/v1/search"                               # [verified]
     REVERSE = "/v5/reverse"                             # [verified]
-    GEOCODING = "/geocoding/v1/"                        # [verified] json={...}
+    GEOCODING = "/geocoding/v1"                         # [verified] json={...}
     GEOCODING_PLUS = "/geocoding/v1/plus"               # [verified] json={...}
     DIRECTION = "/v4/direction"                         # [verified]
     DIRECTION_NO_TRAFFIC = "/v4/direction/no-traffic"   # [verified]
