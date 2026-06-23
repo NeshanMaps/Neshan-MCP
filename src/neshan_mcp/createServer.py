@@ -11,8 +11,10 @@ from .tools import register_all
 
 INSTRUCTIONS = (
     "Tools for Iran's Neshan Maps Platform: place search, geocoding, reverse "
-    "geocoding, routing (car/motorcycle, with/without live traffic), distance "
-    "matrix, multi-stop optimization (TSP), and static map images. "
+    "geocoding, routing (car/motorcycle/pedestrian, live/typical/historical traffic), "
+    "isochrone, distance matrix, multi-stop optimization (TSP), static map images, "
+    "and Neshan app deeplink generation. "
+    "Search and routing results include neshan_links (android_web + ios) automatically. "
     "Coordinates are (lat, lng) in decimal degrees."
 )
 
