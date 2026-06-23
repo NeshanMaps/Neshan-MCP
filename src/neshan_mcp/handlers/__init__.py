@@ -5,6 +5,7 @@ from .routingHandler import (
     handle_direction,
     handle_direction_no_traffic,
     handle_distance_matrix,
+    handle_isochrone,
     handle_map_matching,
     handle_tsp,
 )
@@ -25,5 +26,6 @@ __all__ = [
     "handle_distance_matrix",
     "handle_tsp",
     "handle_map_matching",
+    "handle_isochrone",
     "handle_static_map",
 ]

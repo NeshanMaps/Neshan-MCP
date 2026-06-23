@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 from ...constants import Endpoints
-from ...schemas.routing import DirectionInput, MapMatchingInput, MatrixInput, TspInput
+from ...schemas.routing import DirectionInput, IsochroneInput, MapMatchingInput, MatrixInput, TspInput
 from ...utils import coord, coord_list
 from ..base import NeshanClient
-from .types import DirectionResponse, MapMatchingResponse, MatrixResponse, TspResponse
+from .types import DirectionResponse, IsochroneResponse, MapMatchingResponse, MatrixResponse, TspResponse
 
 
 def _direction_params(data: DirectionInput) -> dict:
@@ -69,3 +69,16 @@ async def map_matching(client: NeshanClient, data: MapMatchingInput) -> MapMatch
         Endpoints.MAP_MATCHING, service="map_matching",
         params={"path": coord_list(data.path_points)},
     )
+
+
+async def isochrone(client: NeshanClient, data: IsochroneInput) -> IsochroneResponse:
+    params: dict = {
+        "location": coord(data.lat, data.lng),
+        "polygon": str(data.polygon).lower(),
+        "denoise": data.denoise,
+    }
+    if data.distance is not None:
+        params["distance"] = data.distance
+    if data.time is not None:
+        params["time"] = data.time
+    return await client.get_json(Endpoints.ISOCHRONE, service="isochrone", params=params)

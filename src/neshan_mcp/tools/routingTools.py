@@ -88,3 +88,33 @@ def register(mcp, client: NeshanClient) -> None:
             path_points: The recorded track as [[lat, lng], ...].
         """
         return await handlers.handle_map_matching(client, path_points)
+
+    @mcp.tool
+    async def neshan_isochrone(
+        lat: float,
+        lng: float,
+        distance: float | None = None,
+        time: float | None = None,
+        polygon: bool = False,
+        denoise: float = 0.0,
+    ):
+        """Calculate the reachable area from a point within a given time or distance (isochrone).
+
+        Returns a GeoJSON FeatureCollection. Each feature's geometry is a Polygon or
+        LineString (controlled by 'polygon') and properties.metric is 'time' or 'distance'.
+        Both distance and time can be requested simultaneously.
+
+        Args:
+            lat: Center latitude.
+            lng: Center longitude.
+            distance: Max reachable distance in km. At least one of distance/time is required.
+            time: Max reachable time in minutes. At least one of distance/time is required.
+            polygon: True → Polygon geometry; False → LineString geometry (default False).
+            denoise: Simplification level 0–1 (0 = full detail, 1 = maximum simplification).
+        """
+        return await handlers.handle_isochrone(
+            client,
+            lat=lat, lng=lng,
+            distance=distance, time=time,
+            polygon=polygon, denoise=denoise,
+        )

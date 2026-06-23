@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from ..shared import validate_pairs
 from .common import Vehicle
@@ -62,3 +62,18 @@ class MapMatchingInput(BaseModel):
     @classmethod
     def _v_points(cls, v):
         return validate_pairs(v, field="path_points", minimum=2)
+
+
+class IsochroneInput(BaseModel):
+    lat: float = Field(ge=-90, le=90)
+    lng: float = Field(ge=-180, le=180)
+    distance: float | None = Field(default=None, gt=0)
+    time: float | None = Field(default=None, gt=0)
+    polygon: bool = False
+    denoise: float = Field(default=0.0, ge=0.0, le=1.0)
+
+    @model_validator(mode="after")
+    def _require_distance_or_time(self) -> "IsochroneInput":
+        if self.distance is None and self.time is None:
+            raise ValueError("At least one of 'distance' or 'time' must be provided.")
+        return self
