@@ -35,6 +35,10 @@ class NeshanClient:
             path, service=service, params=params, key_in_query=True, expect_json=False
         )
 
+    async def get_bytes(self, path: str, *, service: str) -> bytes:
+        """GET a binary resource at *path* using the standard Api-Key header."""
+        return await self._request(path, service=service, params={}, expect_json=False)
+
     async def _request(
         self,
         path: str,

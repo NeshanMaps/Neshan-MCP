@@ -13,8 +13,10 @@ INSTRUCTIONS = (
     "Tools for Iran's Neshan Maps Platform: place search, geocoding, reverse "
     "geocoding, routing (car/motorcycle/pedestrian, live/typical/historical traffic), "
     "isochrone, distance matrix, multi-stop optimization (TSP), static map images, "
-    "and Neshan app deeplink generation. "
+    "Neshan app deeplink generation, and traffic analytics. "
     "Search and routing results include neshan_links (android_web + ios) automatically. "
+    "Traffic analytics returns a 24-hour congestion chart, an overall KPI score, "
+    "and a static PNG map of the area. "
     "Coordinates are (lat, lng) in decimal degrees."
 )
 
