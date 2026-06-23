@@ -4,5 +4,8 @@ from .base import NeshanClient
 from .map import mapService
 from .routing import routingService
 from .search import searchService
+from .traffic import trafficService
+from .zipcode import zipcodeService
+from .vrp import vrpService
 
-__all__ = ["NeshanClient", "searchService", "routingService", "mapService"]
+__all__ = ["NeshanClient", "searchService", "routingService", "mapService", "trafficService", "zipcodeService", "vrpService"]

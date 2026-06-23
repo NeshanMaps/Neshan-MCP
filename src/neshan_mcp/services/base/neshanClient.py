@@ -35,12 +35,21 @@ class NeshanClient:
             path, service=service, params=params, key_in_query=True, expect_json=False
         )
 
+    async def get_bytes(self, path: str, *, service: str) -> bytes:
+        """GET a binary resource at *path* using the standard Api-Key header."""
+        return await self._request(path, service=service, params={}, expect_json=False)
+
+    async def post_json(self, path: str, *, service: str, body: dict[str, Any]) -> Any:
+        """POST JSON *body* and return parsed JSON response."""
+        return await self._request(path, service=service, params={}, body=body)
+
     async def _request(
         self,
         path: str,
         *,
         service: str,
         params: dict[str, Any] | None = None,
+        body: dict[str, Any] | None = None,
         key_in_query: bool = False,
         expect_json: bool = True,
     ) -> Any:
@@ -62,7 +71,10 @@ class NeshanClient:
         last_exc: Exception | None = None
         for attempt in range(settings.max_retries + 1):
             try:
-                resp = await self._client.get(path, params=params, headers=headers)
+                if body is not None:
+                    resp = await self._client.post(path, params=params, json=body, headers=headers)
+                else:
+                    resp = await self._client.get(path, params=params, headers=headers)
             except httpx.RequestError as exc:
                 last_exc = exc
                 logger.warning("network error on %s (attempt %d): %s", path, attempt, exc)

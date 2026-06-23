@@ -1,6 +1,9 @@
 """Request handlers grouped by domain."""
 
 from .mapHandler import handle_static_map, handle_static_map_arc
+from .trafficHandler import handle_traffic_analytics
+from .zipcodeHandler import handle_zipcode
+from .vrpHandler import handle_vrp_logistic
 from .routingHandler import (
     handle_direction,
     handle_direction_historical,
@@ -33,4 +36,7 @@ __all__ = [
     "handle_isochrone",
     "handle_static_map",
     "handle_static_map_arc",
+    "handle_traffic_analytics",
+    "handle_zipcode",
+    "handle_vrp_logistic",
 ]

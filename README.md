@@ -1,8 +1,8 @@
 # Neshan MCP Server
 
-سرور [MCP](https://modelcontextprotocol.io) برای پلتفرم نقشه نشان. وب‌سرویس‌های نشان (جستجو، جئوکدینگ، مسیریابی خودرو/پیاده/تاریخی/معمول، ایزوکرون، ماتریس فاصله، TSP، نقشه استاتیک، نقشه استاتیک با کمان و map matching) را به‌صورت ابزارهای MCP در اختیار محیط‌های هوش مصنوعی (Claude Desktop، Cursor و …) قرار می‌دهد.
+سرور [MCP](https://modelcontextprotocol.io) برای پلتفرم نقشه نشان. وب‌سرویس‌های نشان (جستجو، جئوکدینگ، مسیریابی خودرو/پیاده/تاریخی/معمول، ایزوکرون، ماتریس فاصله، TSP، نقشه استاتیک، نقشه استاتیک با کمان، map matching، تحلیل ترافیک، جستجوی کد پستی و مسیریابی ناوگان VRP) را به‌صورت ابزارهای MCP در اختیار محیط‌های هوش مصنوعی (Claude Desktop، Cursor و …) قرار می‌دهد.
 
-ساختار لایه‌ای با مدل کاری `tool → handler → service → http`، گروه‌بندی‌شده بر اساس دامنه (`search` / `routing` / `map`).
+ساختار لایه‌ای با مدل کاری `tool → handler → service → http`، گروه‌بندی‌شده بر اساس دامنه (`search` / `routing` / `map` / `traffic` / `zipcode` / `vrp`).
 
 کلید API را **کلاینت** فراهم می‌کند: در حالت HTTP در هدر هر درخواست (`Neshan-Api-Key`) فرستاده می‌شود؛ در حالت stdio به‌عنوان fallback از env سرور خوانده می‌شود.
 
@@ -21,21 +21,34 @@ src/neshan_mcp/
 │   ├── searchHandler.py
 │   ├── routingHandler.py
 │   ├── mapHandler.py
+│   ├── trafficHandler.py
+│   ├── zipcodeHandler.py
+│   ├── vrpHandler.py
 │   └── shared/responseTrimmer.py
 ├── schemas/             # مدل‌های pydantic برای اعتبارسنجی ورودی (per-domain)
 │   ├── search/  (searchSchema.py, common.py)
 │   ├── routing/ (routingSchema.py, common.py)
 │   ├── map/     (mapSchema.py)
+│   ├── traffic/ (trafficSchema.py)
+│   ├── zipcode/ (zipcodeSchema.py)
+│   ├── vrp/     (vrpSchema.py)
 │   └── shared/  (validators.py)
 ├── services/            # wrapper خام API (per-domain) + کلاینت پایه
-│   ├── base/    (neshanClient.py)
+│   ├── base/    (neshanClient.py — GET/POST/bytes + retry + key injection)
 │   ├── search/  (searchService.py, types.py)
 │   ├── routing/ (routingService.py, types.py)
-│   └── map/     (mapService.py, types.py)
+│   ├── map/     (mapService.py, types.py)
+│   ├── traffic/ (trafficService.py)
+│   ├── zipcode/ (zipcodeService.py)
+│   └── vrp/     (vrpService.py)
 ├── tools/               # تعریف نازک ابزار MCP که به handler delegate می‌کند
 │   ├── searchTools.py
 │   ├── routingTools.py
-│   └── mapTools.py
+│   ├── mapTools.py
+│   ├── trafficTools.py
+│   ├── zipcodeTools.py
+│   ├── vrpTools.py
+│   └── utilityTools.py
 ├── types/               # مدل‌های مقدار مشترک (Coordinate و …)
 ├── utils/               # apiErrorHandler, logger, coords
 └── apps/                # (placeholder) لایه‌ی UI تعاملی؛ فعلاً پیاده‌سازی نشده
@@ -70,6 +83,9 @@ src/neshan_mcp/
 | `neshan_map_matching` | routing | ⚠️ نیازمند تأیید | تطبیق مسیر با جاده‌ها |
 | `neshan_static_map` | map | `/v5/static` | تصویر نقشه استاتیک |
 | `neshan_static_map_arc` | map | `/v4/static/arc` | تصویر نقشه استاتیک با رسم کمان بین مبدا و مقصد |
+| `neshan_traffic_analytics` | traffic | `/navigation/traffic/analytics/v0.1` | تحلیل ترافیک تاریخی: KPI کلی، نمودار ۲۴ساعته، نقشه استاتیک PNG |
+| `neshan_zipcode` | zipcode | `/zipcode/simple` | تبدیل کد پستی ۱۰رقمی به استان، شهر، محله، آدرس و مختصات |
+| `neshan_vrp_logistic` | vrp | `/vrp/logistic` (POST) | حل مسئله مسیریابی ناوگان (VRP): تخصیص job به وسیله‌ها با رعایت ظرفیت، مهارت و پنجره زمانی |
 
 تمام مختصات `(lat, lng)` اعشاری.
 
@@ -91,7 +107,7 @@ pip install -e .
 | `Neshan-Api-Key-<service>` | override برای یک سرویس (مثل `Neshan-Api-Key-static`) |
 | `Api-Key` | alias |
 
-نام سرویس‌ها: `search`، `geocoding`، `routing`، `historical`، `isochrone`، `matrix`، `tsp`، `static`، `map_matching`.
+نام سرویس‌ها: `search`، `geocoding`، `routing`، `historical`، `isochrone`، `matrix`، `tsp`، `static`، `map_matching`، `traffic`، `zipcode`، `vrp`.
 
 **حالت stdio — fallback از env:**
 
