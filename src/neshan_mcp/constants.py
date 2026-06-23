@@ -21,6 +21,7 @@ class Endpoints:
     DISTANCE_MATRIX = "/v1/distance-matrix"             # [verified]
     TSP = "/v3/trip"                                    # [verified]
     STATIC_MAP = "/v5/static"                           # [verified] key in query
+    STATIC_MAP_ARC = "/v4/static/arc"                   # [verified] key in query
     ISOCHRONE = "/v1/isochrone"                         # [verified]
     # [VERIFY] path/params not confirmed against live docs.
     MAP_MATCHING = os.getenv("NESHAN_MAP_MATCHING_PATH", "/mapMatching/v1/snapToRoad")
@@ -39,6 +40,7 @@ KEY_OVERRIDE_ENV = {
     "matrix": "NESHAN_KEY_MATRIX",
     "tsp": "NESHAN_KEY_TSP",
     "static": "NESHAN_KEY_STATIC",
+    "static_arc": "NESHAN_KEY_STATIC_ARC",
     "isochrone": "NESHAN_KEY_ISOCHRONE",
     "map_matching": "NESHAN_KEY_MAP_MATCHING",
 }

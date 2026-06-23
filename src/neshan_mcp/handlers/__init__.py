@@ -1,6 +1,6 @@
 """Request handlers grouped by domain."""
 
-from .mapHandler import handle_static_map
+from .mapHandler import handle_static_map, handle_static_map_arc
 from .routingHandler import (
     handle_direction,
     handle_direction_historical,
@@ -32,4 +32,5 @@ __all__ = [
     "handle_map_matching",
     "handle_isochrone",
     "handle_static_map",
+    "handle_static_map_arc",
 ]

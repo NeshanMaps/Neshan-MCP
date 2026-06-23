@@ -1,3 +1,3 @@
-from .mapSchema import StaticMapInput
+from .mapSchema import StaticMapArcInput, StaticMapInput
 
-__all__ = ["StaticMapInput"]
+__all__ = ["StaticMapInput", "StaticMapArcInput"]

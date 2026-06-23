@@ -1,6 +1,6 @@
 # Neshan MCP Server
 
-سرور [MCP](https://modelcontextprotocol.io) برای پلتفرم نقشه نشان. وب‌سرویس‌های نشان (جستجو، جئوکدینگ، مسیریابی خودرو/پیاده/تاریخی/معمول، ایزوکرون، ماتریس فاصله، TSP، نقشه استاتیک و map matching) را به‌صورت ابزارهای MCP در اختیار محیط‌های هوش مصنوعی (Claude Desktop، Cursor و …) قرار می‌دهد.
+سرور [MCP](https://modelcontextprotocol.io) برای پلتفرم نقشه نشان. وب‌سرویس‌های نشان (جستجو، جئوکدینگ، مسیریابی خودرو/پیاده/تاریخی/معمول، ایزوکرون، ماتریس فاصله، TSP، نقشه استاتیک، نقشه استاتیک با کمان و map matching) را به‌صورت ابزارهای MCP در اختیار محیط‌های هوش مصنوعی (Claude Desktop، Cursor و …) قرار می‌دهد.
 
 ساختار لایه‌ای با مدل کاری `tool → handler → service → http`، گروه‌بندی‌شده بر اساس دامنه (`search` / `routing` / `map`).
 
@@ -69,6 +69,7 @@ src/neshan_mcp/
 | `neshan_tsp` | routing | `/v3/trip` | بهینه‌سازی مسیر چندایستگاهی (TSP) |
 | `neshan_map_matching` | routing | ⚠️ نیازمند تأیید | تطبیق مسیر با جاده‌ها |
 | `neshan_static_map` | map | `/v5/static` | تصویر نقشه استاتیک |
+| `neshan_static_map_arc` | map | `/v4/static/arc` | تصویر نقشه استاتیک با رسم کمان بین مبدا و مقصد |
 
 تمام مختصات `(lat, lng)` اعشاری.
 
