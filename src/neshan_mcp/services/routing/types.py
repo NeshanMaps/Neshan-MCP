@@ -8,3 +8,5 @@ DirectionResponse = NeshanResponse
 MatrixResponse = NeshanResponse
 TspResponse = NeshanResponse
 MapMatchingResponse = NeshanResponse
+IsochroneResponse = NeshanResponse
+HistoricalDirectionResponse = NeshanResponse

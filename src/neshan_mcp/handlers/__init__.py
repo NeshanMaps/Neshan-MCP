@@ -1,10 +1,13 @@
 """Request handlers grouped by domain."""
 
-from .mapHandler import handle_static_map
+from .mapHandler import handle_static_map, handle_static_map_arc
 from .routingHandler import (
     handle_direction,
+    handle_direction_historical,
     handle_direction_no_traffic,
+    handle_direction_typical,
     handle_distance_matrix,
+    handle_isochrone,
     handle_map_matching,
     handle_tsp,
 )
@@ -22,8 +25,12 @@ __all__ = [
     "handle_geocode_plus",
     "handle_direction",
     "handle_direction_no_traffic",
+    "handle_direction_typical",
+    "handle_direction_historical",
     "handle_distance_matrix",
     "handle_tsp",
     "handle_map_matching",
+    "handle_isochrone",
     "handle_static_map",
+    "handle_static_map_arc",
 ]

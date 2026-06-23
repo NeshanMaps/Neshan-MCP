@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from ..schemas.routing import DirectionInput, MapMatchingInput, MatrixInput, TspInput
+from ..schemas.routing import DirectionInput, HistoricalDirectionInput, IsochroneInput, MapMatchingInput, MatrixInput, TspInput
 from ..services import NeshanClient, routingService
 from ..utils import handle_api_errors
 
@@ -38,3 +38,18 @@ async def handle_map_matching(
     client: NeshanClient, path_points: list[list[float]]
 ) -> dict[str, Any]:
     return await routingService.map_matching(client, MapMatchingInput(path_points=path_points))
+
+
+@handle_api_errors
+async def handle_direction_typical(client: NeshanClient, **kwargs) -> dict[str, Any]:
+    return await routingService.direction_typical(client, DirectionInput(**kwargs))
+
+
+@handle_api_errors
+async def handle_direction_historical(client: NeshanClient, **kwargs) -> dict[str, Any]:
+    return await routingService.direction_historical(client, HistoricalDirectionInput(**kwargs))
+
+
+@handle_api_errors
+async def handle_isochrone(client: NeshanClient, **kwargs) -> dict[str, Any]:
+    return await routingService.isochrone(client, IsochroneInput(**kwargs))

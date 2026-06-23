@@ -1,7 +1,7 @@
 """Aggregated input schemas (mirrors schemas/index)."""
 
 from .map import StaticMapInput
-from .routing import DirectionInput, MapMatchingInput, MatrixInput, TspInput
+from .routing import DirectionInput, HistoricalDirectionInput, IsochroneInput, MapMatchingInput, MatrixInput, TspInput
 from .search import GeocodeInput, GeocodePlusInput, ReverseInput, SearchInput
 
 __all__ = [
@@ -10,8 +10,10 @@ __all__ = [
     "GeocodeInput",
     "GeocodePlusInput",
     "DirectionInput",
+    "HistoricalDirectionInput",
     "MatrixInput",
     "TspInput",
     "MapMatchingInput",
+    "IsochroneInput",
     "StaticMapInput",
 ]

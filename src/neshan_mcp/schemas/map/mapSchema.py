@@ -13,3 +13,17 @@ class StaticMapInput(BaseModel):
     height: int = Field(default=500, ge=16, le=2048)
     map_type: str = "light"
     marker: str | None = "red"
+
+
+class StaticMapArcInput(BaseModel):
+    origin_lat: float = Field(ge=-90, le=90)
+    origin_lng: float = Field(ge=-180, le=180)
+    dest_lat: float = Field(ge=-90, le=90)
+    dest_lng: float = Field(ge=-180, le=180)
+    width: int = Field(default=600, ge=16, le=2000)
+    height: int = Field(default=600, ge=16, le=1200)
+    map_type: str = "standard-night"
+    dashed: bool = False
+    color: str | None = None
+    marker1_token: str | None = None
+    marker2_token: str | None = None

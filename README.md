@@ -1,6 +1,6 @@
 # Neshan MCP Server
 
-سرور [MCP](https://modelcontextprotocol.io) برای پلتفرم نقشه نشان. وب‌سرویس‌های نشان (جستجو، جئوکدینگ، مسیریابی، ماتریس فاصله، TSP، نقشه استاتیک و map matching) را به‌صورت ابزارهای MCP در اختیار محیط‌های هوش مصنوعی (Claude Desktop، Cursor و …) قرار می‌دهد.
+سرور [MCP](https://modelcontextprotocol.io) برای پلتفرم نقشه نشان. وب‌سرویس‌های نشان (جستجو، جئوکدینگ، مسیریابی خودرو/پیاده/تاریخی/معمول، ایزوکرون، ماتریس فاصله، TSP، نقشه استاتیک، نقشه استاتیک با کمان و map matching) را به‌صورت ابزارهای MCP در اختیار محیط‌های هوش مصنوعی (Claude Desktop، Cursor و …) قرار می‌دهد.
 
 ساختار لایه‌ای با مدل کاری `tool → handler → service → http`، گروه‌بندی‌شده بر اساس دامنه (`search` / `routing` / `map`).
 
@@ -53,18 +53,23 @@ src/neshan_mcp/
 
 ## ابزارها
 
-| ابزار | دامنه | اندپوینت نشان |
-|---|---|---|
-| `neshan_search` | search | `/v1/search` |
-| `neshan_reverse_geocode` | search | `/v5/reverse` |
-| `neshan_geocode` | search | `/geocoding/v1/` |
-| `neshan_geocode_plus` | search | `/geocoding/v1/plus` |
-| `neshan_direction` | routing | `/v4/direction` |
-| `neshan_direction_no_traffic` | routing | `/v4/direction/no-traffic` |
-| `neshan_distance_matrix` | routing | `/v1/distance-matrix` |
-| `neshan_tsp` | routing | `/v3/trip` |
-| `neshan_map_matching` | routing | ⚠️ نیازمند تأیید |
-| `neshan_static_map` | map | `/v5/static` |
+| ابزار | دامنه | اندپوینت نشان | توضیح |
+|---|---|---|---|
+| `neshan_search` | search | `/v1/search` | جستجوی مکان |
+| `neshan_reverse_geocode` | search | `/v5/reverse` | تبدیل مختصات به آدرس |
+| `neshan_geocode` | search | `/geocoding/v1/` | تبدیل آدرس به مختصات |
+| `neshan_geocode_plus` | search | `/geocoding/v1/plus` | جئوکدینگ پیشرفته |
+| `neshan_direction` | routing | `/v4/direction` | مسیریابی با ترافیک لحظه‌ای |
+| `neshan_direction_no_traffic` | routing | `/v4/direction/no-traffic` | مسیریابی بدون ترافیک |
+| `neshan_direction_pedestrian` | routing | `/v4/direction` (`type=pedestrian`) | مسیریابی پیاده |
+| `neshan_direction_typical` | routing | `/v1/direction/typical` | مسیریابی با ترافیک معمول (هر ۱۵ دقیقه به‌روزرسانی) |
+| `neshan_direction_historical` | routing | `/v1/direction/historical` | مسیریابی برای زمان آینده بر اساس داده‌های تاریخی |
+| `neshan_isochrone` | routing | `/v1/isochrone` | محاسبه ناحیه دسترس‌پذیر از یک نقطه در زمان/فاصله مشخص |
+| `neshan_distance_matrix` | routing | `/v1/distance-matrix` | ماتریس فاصله/زمان چند نقطه |
+| `neshan_tsp` | routing | `/v3/trip` | بهینه‌سازی مسیر چندایستگاهی (TSP) |
+| `neshan_map_matching` | routing | ⚠️ نیازمند تأیید | تطبیق مسیر با جاده‌ها |
+| `neshan_static_map` | map | `/v5/static` | تصویر نقشه استاتیک |
+| `neshan_static_map_arc` | map | `/v4/static/arc` | تصویر نقشه استاتیک با رسم کمان بین مبدا و مقصد |
 
 تمام مختصات `(lat, lng)` اعشاری.
 
@@ -86,7 +91,7 @@ pip install -e .
 | `Neshan-Api-Key-<service>` | override برای یک سرویس (مثل `Neshan-Api-Key-static`) |
 | `Api-Key` | alias |
 
-نام سرویس‌ها: `search`، `geocoding`، `routing`، `matrix`، `tsp`، `static`، `map_matching`.
+نام سرویس‌ها: `search`، `geocoding`، `routing`، `historical`، `isochrone`، `matrix`، `tsp`، `static`، `map_matching`.
 
 **حالت stdio — fallback از env:**
 

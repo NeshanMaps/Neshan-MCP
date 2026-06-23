@@ -16,9 +16,13 @@ class Endpoints:
     GEOCODING_PLUS = "/geocoding/v1/plus"               # [verified] json={...}
     DIRECTION = "/v4/direction"                         # [verified]
     DIRECTION_NO_TRAFFIC = "/v4/direction/no-traffic"   # [verified]
+    DIRECTION_TYPICAL = "/v1/direction/typical"         # [verified]
+    DIRECTION_HISTORICAL = "/v1/direction/historical"   # [verified]
     DISTANCE_MATRIX = "/v1/distance-matrix"             # [verified]
     TSP = "/v3/trip"                                    # [verified]
     STATIC_MAP = "/v5/static"                           # [verified] key in query
+    STATIC_MAP_ARC = "/v4/static/arc"                   # [verified] key in query
+    ISOCHRONE = "/v1/isochrone"                         # [verified]
     # [VERIFY] path/params not confirmed against live docs.
     MAP_MATCHING = os.getenv("NESHAN_MAP_MATCHING_PATH", "/mapMatching/v1/snapToRoad")
 
@@ -32,8 +36,11 @@ KEY_OVERRIDE_ENV = {
     "search": "NESHAN_KEY_SEARCH",
     "geocoding": "NESHAN_KEY_GEOCODING",
     "routing": "NESHAN_KEY_ROUTING",
+    "historical": "NESHAN_KEY_HISTORICAL",
     "matrix": "NESHAN_KEY_MATRIX",
     "tsp": "NESHAN_KEY_TSP",
     "static": "NESHAN_KEY_STATIC",
+    "static_arc": "NESHAN_KEY_STATIC_ARC",
+    "isochrone": "NESHAN_KEY_ISOCHRONE",
     "map_matching": "NESHAN_KEY_MAP_MATCHING",
 }

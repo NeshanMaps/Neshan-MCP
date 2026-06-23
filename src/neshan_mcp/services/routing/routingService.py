@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 from ...constants import Endpoints
-from ...schemas.routing import DirectionInput, MapMatchingInput, MatrixInput, TspInput
+from ...schemas.routing import DirectionInput, HistoricalDirectionInput, IsochroneInput, MapMatchingInput, MatrixInput, TspInput
 from ...utils import coord, coord_list
 from ..base import NeshanClient
-from .types import DirectionResponse, MapMatchingResponse, MatrixResponse, TspResponse
+from .types import DirectionResponse, HistoricalDirectionResponse, IsochroneResponse, MapMatchingResponse, MatrixResponse, TspResponse
 
 
 def _direction_params(data: DirectionInput) -> dict:
@@ -69,3 +69,38 @@ async def map_matching(client: NeshanClient, data: MapMatchingInput) -> MapMatch
         Endpoints.MAP_MATCHING, service="map_matching",
         params={"path": coord_list(data.path_points)},
     )
+
+
+async def direction_typical(client: NeshanClient, data: DirectionInput) -> DirectionResponse:
+    return await client.get_json(
+        Endpoints.DIRECTION_TYPICAL, service="routing", params=_direction_params(data)
+    )
+
+
+async def direction_historical(
+    client: NeshanClient, data: HistoricalDirectionInput
+) -> HistoricalDirectionResponse:
+    params = {
+        "origin": coord(data.origin_lat, data.origin_lng),
+        "destination": coord(data.dest_lat, data.dest_lng),
+        "routingType": data.routing_type,
+        "dateTime": data.date_time,
+        "avoidTrafficZone": str(data.avoid_traffic_zone).lower(),
+        "alternative": str(data.alternative).lower(),
+    }
+    return await client.get_json(
+        Endpoints.DIRECTION_HISTORICAL, service="historical", params=params
+    )
+
+
+async def isochrone(client: NeshanClient, data: IsochroneInput) -> IsochroneResponse:
+    params: dict = {
+        "location": coord(data.lat, data.lng),
+        "polygon": str(data.polygon).lower(),
+        "denoise": data.denoise,
+    }
+    if data.distance is not None:
+        params["distance"] = data.distance
+    if data.time is not None:
+        params["time"] = data.time
+    return await client.get_json(Endpoints.ISOCHRONE, service="isochrone", params=params)
