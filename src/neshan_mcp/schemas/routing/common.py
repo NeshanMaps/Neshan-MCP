@@ -4,4 +4,4 @@ from __future__ import annotations
 
 from typing import Literal
 
-Vehicle = Literal["car", "motorcycle"]
+Vehicle = Literal["car", "motorcycle", "pedestrian"]

@@ -16,6 +16,8 @@ class Endpoints:
     GEOCODING_PLUS = "/geocoding/v1/plus"               # [verified] json={...}
     DIRECTION = "/v4/direction"                         # [verified]
     DIRECTION_NO_TRAFFIC = "/v4/direction/no-traffic"   # [verified]
+    DIRECTION_TYPICAL = "/v1/direction/typical"         # [verified]
+    DIRECTION_HISTORICAL = "/v1/direction/historical"   # [verified]
     DISTANCE_MATRIX = "/v1/distance-matrix"             # [verified]
     TSP = "/v3/trip"                                    # [verified]
     STATIC_MAP = "/v5/static"                           # [verified] key in query
@@ -33,6 +35,7 @@ KEY_OVERRIDE_ENV = {
     "search": "NESHAN_KEY_SEARCH",
     "geocoding": "NESHAN_KEY_GEOCODING",
     "routing": "NESHAN_KEY_ROUTING",
+    "historical": "NESHAN_KEY_HISTORICAL",
     "matrix": "NESHAN_KEY_MATRIX",
     "tsp": "NESHAN_KEY_TSP",
     "static": "NESHAN_KEY_STATIC",
