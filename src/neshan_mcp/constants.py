@@ -24,6 +24,8 @@ class Endpoints:
     STATIC_MAP_ARC = "/v4/static/arc"                   # [verified] key in query
     ISOCHRONE = "/v1/isochrone"                         # [verified]
     TRAFFIC_ANALYTICS = "/navigation/traffic/analytics/v0.1"  # [verified]
+    ZIPCODE = "/zipcode/simple"                               # [verified]
+    VRP_LOGISTIC = "/vrp/logistic"                            # [verified] POST
     # [VERIFY] path/params not confirmed against live docs.
     MAP_MATCHING = os.getenv("NESHAN_MAP_MATCHING_PATH", "/mapMatching/v1/snapToRoad")
 
@@ -45,4 +47,6 @@ KEY_OVERRIDE_ENV = {
     "isochrone": "NESHAN_KEY_ISOCHRONE",
     "map_matching": "NESHAN_KEY_MAP_MATCHING",
     "traffic": "NESHAN_KEY_TRAFFIC",
+    "zipcode": "NESHAN_KEY_ZIPCODE",
+    "vrp": "NESHAN_KEY_VRP",
 }
