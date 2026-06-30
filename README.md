@@ -86,6 +86,7 @@ src/neshan_mcp/
 | `neshan_traffic_analytics` | traffic | `/navigation/traffic/analytics/v0.1` | تحلیل ترافیک تاریخی: KPI کلی، نمودار ۲۴ساعته، نقشه استاتیک PNG |
 | `neshan_zipcode` | zipcode | `/zipcode/simple` | تبدیل کد پستی ۱۰رقمی به استان، شهر، محله، آدرس و مختصات |
 | `neshan_vrp_logistic` | vrp | `/vrp/logistic` (POST) | حل مسئله مسیریابی ناوگان (VRP): تخصیص job به وسیله‌ها با رعایت ظرفیت، مهارت و پنجره زمانی |
+| `neshan_get_point_by_hash` | point | `/v1/point` | دریافت اطلاعات کامل یک مکان (آدرس، دسته‌بندی، مختصات، محله) با استفاده از poiHash برگشتی از neshan_search |
 
 تمام مختصات `(lat, lng)` اعشاری.
 

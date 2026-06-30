@@ -21,6 +21,8 @@ INSTRUCTIONS = (
     "zone, address, and coordinates. "
     "VRP logistic solves fleet routing problems: assigns jobs to vehicles respecting "
     "capacity, skills, and time-windows, and returns optimized routes with geometry. "
+    "Point lookup fetches full details of a place (address, category, coordinates, "
+    "neighbourhood) using the poiHash returned by neshan_search results. "
     "Coordinates are (lat, lng) in decimal degrees."
 )
 

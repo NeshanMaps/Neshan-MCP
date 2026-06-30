@@ -26,6 +26,7 @@ class Endpoints:
     TRAFFIC_ANALYTICS = "/navigation/traffic/analytics/v0.1"  # [verified]
     ZIPCODE = "/zipcode/simple"                               # [verified]
     VRP_LOGISTIC = "/vrp/logistic"                            # [verified] POST
+    POINT = "/v1/point"                                       # [verified]
     # [VERIFY] path/params not confirmed against live docs.
     MAP_MATCHING = os.getenv("NESHAN_MAP_MATCHING_PATH", "/mapMatching/v1/snapToRoad")
 
@@ -49,4 +50,5 @@ KEY_OVERRIDE_ENV = {
     "traffic": "NESHAN_KEY_TRAFFIC",
     "zipcode": "NESHAN_KEY_ZIPCODE",
     "vrp": "NESHAN_KEY_VRP",
+    "point": "NESHAN_KEY_POINT",
 }
