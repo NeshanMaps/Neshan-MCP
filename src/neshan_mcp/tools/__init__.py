@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from ..services import NeshanClient
-from . import mapTools, routingTools, searchTools, trafficTools, utilityTools, zipcodeTools, vrpTools
+from . import mapTools, pointTools, routingTools, searchTools, trafficTools, utilityTools, zipcodeTools, vrpTools
 
 
 def register_all(mcp, client: NeshanClient) -> None:
@@ -13,4 +13,5 @@ def register_all(mcp, client: NeshanClient) -> None:
     trafficTools.register(mcp, client)
     zipcodeTools.register(mcp, client)
     vrpTools.register(mcp, client)
+    pointTools.register(mcp, client)
     utilityTools.register(mcp, client)
