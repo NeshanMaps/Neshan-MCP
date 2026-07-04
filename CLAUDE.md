@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project overview
 
-This is **neshan-mcp** (v0.3.0): an MCP server wrapping the [Neshan Maps Platform](https://platform.neshan.org/docs) REST API. It exposes search, geocoding, routing, isochrone, distance matrix, TSP, static maps, traffic analytics, zipcode lookup, and VRP as MCP tools usable by Claude Desktop, Cursor, and similar AI clients.
+This is **neshan-mcp** (v0.3.0): an MCP server wrapping the [Neshan Maps Platform](https://platform.neshan.org/docs) REST API. It exposes search, geocoding, routing, isochrone, distance matrix, TSP, static maps, traffic analytics, zipcode lookup, VRP, point lookup, and interactive map view as MCP tools usable by Claude Desktop, Cursor, and similar AI clients.
 
 ## Commands
 
@@ -36,7 +36,9 @@ services/      map args to Neshan API endpoints; no MCP knowledge
 services/base/ NeshanClient — sole network point (httpx, retry, key injection)
 ```
 
-All domains (`search`, `routing`, `map`, `traffic`, `zipcode`, `vrp`) are organized in parallel across all four layers. `tools/__init__.py:register_all` is the single registration point.
+All domains (`search`, `routing`, `map`, `mapview`, `traffic`, `zipcode`, `vrp`, `point`) are organized in parallel across all four layers. `tools/__init__.py:register_all` is the single registration point.
+
+`mapview` is a client-side-only domain: it generates a self-contained interactive HTML file using the Neshan Map SDK (no Neshan API call). It does not require a `NeshanClient` call but follows the same tool→handler→service structure.
 
 ### Key files
 
@@ -51,7 +53,7 @@ All domains (`search`, `routing`, `map`, `traffic`, `zipcode`, `vrp`) are organi
 
 In **HTTP mode**, the client passes the key per-request:
 - `Neshan-Api-Key` — used for all services
-- `Neshan-Api-Key-<service>` — per-service override (service names: `search`, `geocoding`, `routing`, `historical`, `matrix`, `tsp`, `static`, `static_arc`, `isochrone`, `map_matching`, `traffic`, `zipcode`, `vrp`)
+- `Neshan-Api-Key-<service>` — per-service override (service names: `search`, `geocoding`, `routing`, `historical`, `matrix`, `tsp`, `static`, `static_arc`, `isochrone`, `map_matching`, `traffic`, `zipcode`, `vrp`, `point`)
 - `Api-Key` — alias
 
 In **stdio mode**, keys fall back to env: `NESHAN_API_KEY` (default) or `NESHAN_KEY_<SERVICE>` per-service overrides (see `constants.py:KEY_OVERRIDE_ENV`).
@@ -74,3 +76,4 @@ Create a subdirectory in each of `tools/`, `handlers/`, `schemas/`, and `service
 
 - `neshan_reverse_geocode` uses `/v5/reverse`; some accounts require `/v4/reverse` — change `Endpoints.REVERSE` in `constants.py`.
 - `neshan_map_matching` endpoint path is **unverified** against live docs; override via `NESHAN_MAP_MATCHING_PATH` env var.
+- `neshan_map_view` generates an HTML file using the Neshan Web SDK CDN (`static.neshan.org`). A **Web SDK key** (`map_key` arg) is required for base map tiles to load; without it markers and routes render on a blank background. Web SDK keys are separate from service keys and are obtained from [platform.neshan.org](https://platform.neshan.org). Output directory defaults to `$TMPDIR`; override with `NESHAN_MAP_OUTPUT_DIR` env var.

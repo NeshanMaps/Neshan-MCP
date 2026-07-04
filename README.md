@@ -24,6 +24,8 @@ src/neshan_mcp/
 │   ├── trafficHandler.py
 │   ├── zipcodeHandler.py
 │   ├── vrpHandler.py
+│   ├── pointHandler.py
+│   ├── mapViewHandler.py
 │   └── shared/responseTrimmer.py
 ├── schemas/             # مدل‌های pydantic برای اعتبارسنجی ورودی (per-domain)
 │   ├── search/  (searchSchema.py, common.py)
@@ -32,6 +34,8 @@ src/neshan_mcp/
 │   ├── traffic/ (trafficSchema.py)
 │   ├── zipcode/ (zipcodeSchema.py)
 │   ├── vrp/     (vrpSchema.py)
+│   ├── point/   (pointSchema.py)
+│   ├── mapview/ (mapViewSchema.py)
 │   └── shared/  (validators.py)
 ├── services/            # wrapper خام API (per-domain) + کلاینت پایه
 │   ├── base/    (neshanClient.py — GET/POST/bytes + retry + key injection)
@@ -40,7 +44,9 @@ src/neshan_mcp/
 │   ├── map/     (mapService.py, types.py)
 │   ├── traffic/ (trafficService.py)
 │   ├── zipcode/ (zipcodeService.py)
-│   └── vrp/     (vrpService.py)
+│   ├── vrp/     (vrpService.py)
+│   ├── point/   (pointService.py)
+│   └── mapview/ (mapViewGenerator.py — client-side HTML gen, no API call)
 ├── tools/               # تعریف نازک ابزار MCP که به handler delegate می‌کند
 │   ├── searchTools.py
 │   ├── routingTools.py
@@ -48,6 +54,8 @@ src/neshan_mcp/
 │   ├── trafficTools.py
 │   ├── zipcodeTools.py
 │   ├── vrpTools.py
+│   ├── pointTools.py
+│   ├── mapViewTools.py
 │   └── utilityTools.py
 ├── types/               # مدل‌های مقدار مشترک (Coordinate و …)
 ├── utils/               # apiErrorHandler, logger, coords
@@ -87,6 +95,7 @@ src/neshan_mcp/
 | `neshan_zipcode` | zipcode | `/zipcode/simple` | تبدیل کد پستی ۱۰رقمی به استان، شهر، محله، آدرس و مختصات |
 | `neshan_vrp_logistic` | vrp | `/vrp/logistic` (POST) | حل مسئله مسیریابی ناوگان (VRP): تخصیص job به وسیله‌ها با رعایت ظرفیت، مهارت و پنجره زمانی |
 | `neshan_get_point_by_hash` | point | `/v1/point` | دریافت اطلاعات کامل یک مکان (آدرس، دسته‌بندی، مختصات، محله) با استفاده از poiHash برگشتی از neshan_search |
+| `neshan_map_view` | mapview | — (client-side) | تولید فایل HTML نقشه interactive با SDK نشان؛ نمایش markers با popup، رسم مسیر از polyline یا مختصات، auto-fit zoom، لایه ترافیک |
 
 تمام مختصات `(lat, lng)` اعشاری.
 
@@ -175,6 +184,7 @@ curl --location 'http://localhost:3000/mcp' \
 
 - `neshan_reverse_geocode` روی `v5` است؛ اگر اکانتت `v4` است، `Endpoints.REVERSE` را در `constants.py` عوض کن.
 - `neshan_map_matching`: مسیر و نام پارامتر اندپوینت **تأیید نشده**؛ با مستندات زنده تطبیق بده یا `NESHAN_MAP_MATCHING_PATH` را ست کن.
+- `neshan_map_view`: برای نمایش نقشه پایه نشان به **Web SDK key** نیاز دارد (جدا از کلید سرویس)؛ از [platform.neshan.org](https://platform.neshan.org) بگیر و در پارامتر `map_key` بفرست. بدون آن، markers و مسیرها روی پس‌زمینه سفید نمایش داده می‌شوند. مسیر ذخیره فایل HTML پیش‌فرض `$TMPDIR` است؛ با `NESHAN_MAP_OUTPUT_DIR` قابل تغییر است.
 - نقشه استاتیک کلید را به‌صورت query param (`key=`) می‌گیرد نه هدر — در `services/base/neshanClient.py` مدیریت شده است.
 
 ## مرجع
