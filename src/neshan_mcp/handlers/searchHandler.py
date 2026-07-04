@@ -27,8 +27,26 @@ def _attach_geocode_links(result: dict) -> None:
 
 
 @handle_api_errors
-async def handle_search(client: NeshanClient, term: str, lat: float, lng: float) -> dict[str, Any]:
-    result = await searchService.search(client, SearchInput(term=term, lat=lat, lng=lng))
+async def handle_search(
+    client: NeshanClient,
+    term: str,
+    lat: float,
+    lng: float,
+    *,
+    sw_lat: float | None = None,
+    sw_lng: float | None = None,
+    ne_lat: float | None = None,
+    ne_lng: float | None = None,
+    layer_slug: str | None = None,
+) -> dict[str, Any]:
+    result = await searchService.search(
+        client,
+        SearchInput(
+            term=term, lat=lat, lng=lng,
+            sw_lat=sw_lat, sw_lng=sw_lng, ne_lat=ne_lat, ne_lng=ne_lng,
+            layer_slug=layer_slug,
+        ),
+    )
     _attach_point_links(result)
     return result
 

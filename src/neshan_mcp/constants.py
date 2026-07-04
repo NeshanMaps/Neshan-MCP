@@ -10,7 +10,7 @@ BASE_URL = os.getenv("NESHAN_BASE_URL", "https://api.neshan.org")
 class Endpoints:
     """Relative paths under BASE_URL. Versions kept explicit for easy bumps."""
 
-    SEARCH = "/v1/search"                               # [verified]
+    SEARCH = "/v3/search"                               # [verified] q=<json-encoded> query param
     REVERSE = "/v5/reverse"                             # [verified]
     GEOCODING = "/geocoding/v1"                         # [verified] json={...}
     GEOCODING_PLUS = "/geocoding/v1/plus"               # [verified] json={...}

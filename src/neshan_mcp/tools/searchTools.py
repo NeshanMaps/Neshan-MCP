@@ -8,15 +8,31 @@ from ..services import NeshanClient
 
 def register(mcp, client: NeshanClient) -> None:
     @mcp.tool
-    async def neshan_search(term: str, lat: float, lng: float):
+    async def neshan_search(
+        term: str,
+        lat: float,
+        lng: float,
+        sw_lat: float | None = None,
+        sw_lng: float | None = None,
+        ne_lat: float | None = None,
+        ne_lng: float | None = None,
+        layer_slug: str | None = None,
+    ):
         """Search for places, addresses and POIs near a location in Iran.
 
         Args:
             term: Free-text query in Persian or English (e.g. "کافه").
             lat: Latitude of the search center.
             lng: Longitude of the search center.
+            sw_lat / sw_lng: South-west corner of a bounding box to restrict results.
+            ne_lat / ne_lng: North-east corner of a bounding box to restrict results.
+            layer_slug: Filter results by category/layer slug (e.g. "park").
         """
-        return await handlers.handle_search(client, term, lat, lng)
+        return await handlers.handle_search(
+            client, term, lat, lng,
+            sw_lat=sw_lat, sw_lng=sw_lng, ne_lat=ne_lat, ne_lng=ne_lng,
+            layer_slug=layer_slug,
+        )
 
     @mcp.tool
     async def neshan_reverse_geocode(lat: float, lng: float):
