@@ -12,7 +12,7 @@ def register(mcp, client: NeshanClient) -> None:
         """Fetch full details of a place using its poiHash from neshan_search results.
 
         Call this after neshan_search when you need richer information about a specific
-        result — precise address, category, coordinates, neighbourhood, and region.
+        result — precise address, category, coordinates, neighbourhood, working hours, and region.
 
         Args:
             hash: The poiHash value taken from a result item returned by neshan_search.
