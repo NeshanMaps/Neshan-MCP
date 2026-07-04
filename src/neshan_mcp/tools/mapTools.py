@@ -7,6 +7,7 @@ from typing import Annotated
 from pydantic import Field
 
 from .. import handlers
+from ..schemas.map import StaticMapArcType, StaticMapType
 from ..schemas.shared import Latitude, Longitude
 from ..services import NeshanClient
 
@@ -18,7 +19,7 @@ def register(mcp, client: NeshanClient) -> None:
         zoom: Annotated[int, Field(ge=1, le=20)] = 15,
         width: Annotated[int, Field(ge=16, le=2048)] = 500,
         height: Annotated[int, Field(ge=16, le=2048)] = 500,
-        map_type: str = "light", marker: str | None = "red",
+        map_type: StaticMapType = "day", marker: str | None = "red",
     ):
         """Render a static map image (PNG) centered on a coordinate.
 
@@ -26,7 +27,7 @@ def register(mcp, client: NeshanClient) -> None:
             lat, lng: Center of the map.
             zoom: Zoom level (1-20).
             width, height: Image size in pixels (16-2048).
-            map_type: Style, e.g. 'light', 'dark', 'standard-night'.
+            map_type: 'day' or 'night'.
             marker: Marker color at the center (e.g. 'red'), or None.
         """
         return await handlers.handle_static_map(
@@ -40,7 +41,7 @@ def register(mcp, client: NeshanClient) -> None:
         dest_lat: Latitude, dest_lng: Longitude,
         width: Annotated[int, Field(ge=16, le=2000)] = 600,
         height: Annotated[int, Field(ge=16, le=1200)] = 600,
-        map_type: str = "standard-night",
+        map_type: StaticMapArcType = "standard-night",
         dashed: bool = False,
         color: str | None = None,
         marker1_token: str | None = None,
@@ -56,7 +57,8 @@ def register(mcp, client: NeshanClient) -> None:
             dest_lat, dest_lng: Arc end point.
             width: Image width in pixels (16-2000).
             height: Image height in pixels (16-1200).
-            map_type: Map style — 'standard-night' or 'dreamy'.
+            map_type: 'standard-day', 'standard-night', 'bright', 'osm-bright',
+                'neshan', 'dreamy', 'dreamy-gold', or 'pelak'.
             dashed: Render the arc as a dashed line.
             color: Arc colour as a hex string (e.g. '#FF0AA5'). Defaults to API default.
             marker1_token: Custom icon token for the origin marker (upload via Neshan panel).
