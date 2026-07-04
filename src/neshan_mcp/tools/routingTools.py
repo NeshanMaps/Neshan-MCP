@@ -12,48 +12,64 @@ from ..schemas.shared import Latitude, Longitude
 from ..services import NeshanClient
 
 Bearing = Annotated[int, Field(ge=0, le=360)]
+TrafficMode = Literal["live", "no_traffic", "typical", "historical"]
 
 
 def register(mcp, client: NeshanClient) -> None:
     @mcp.tool
     async def neshan_direction(
         origin_lat: Latitude, origin_lng: Longitude, dest_lat: Latitude, dest_lng: Longitude,
-        vehicle: Vehicle = "car", waypoints: list[list[float]] | None = None,
-        avoid_traffic_zone: bool = False, avoid_odd_even_zone: bool = False,
-        alternative: bool = False, bearing: Bearing | None = None,
+        traffic_mode: TrafficMode = "live",
+        vehicle: Vehicle = "car",
+        waypoints: list[list[float]] | None = None,
+        avoid_traffic_zone: bool = False,
+        avoid_odd_even_zone: bool = False,
+        alternative: bool = False,
+        bearing: Bearing | None = None,
+        routing_type: Literal["DepartAt", "ArriveAt"] | None = None,
+        date_time: str | None = None,
     ):
-        """Calculate a route between two points using LIVE traffic.
+        """Calculate a route between two points, choosing how traffic is modeled.
 
         Args:
             origin_lat, origin_lng: Start point.
             dest_lat, dest_lng: End point.
-            vehicle: 'car' or 'motorcycle'.
-            waypoints: Optional ordered stops as [[lat, lng], ...].
+            traffic_mode: How to account for traffic when routing:
+                - 'live' (default): current real-time traffic. Use for "how long
+                  would this take if I left right now".
+                - 'no_traffic': static road speeds; traffic is ignored entirely.
+                - 'typical': pattern-based traffic refreshed every 15 minutes. Use
+                  for a stable ETA when live traffic is flaky or unavailable.
+                - 'historical': traffic-aware ETA for a *future* date/time, based
+                  on historical patterns for that time of day. Requires
+                  routing_type and date_time. Covers Tehran, Mashhad, and Karaj
+                  only, up to one week ahead.
+            vehicle: 'car', 'motorcycle', or 'pedestrian'. Must stay 'car' (the
+                default) when traffic_mode='historical' — that mode has no
+                vehicle choice.
+            waypoints: Optional ordered stops as [[lat, lng], ...]. Not usable
+                with traffic_mode='historical'.
             avoid_traffic_zone: Avoid the central traffic (طرح ترافیک) zone.
-            avoid_odd_even_zone: Avoid the odd/even (زوج و فرد) zone.
+            avoid_odd_even_zone: Avoid the odd/even (زوج و فرد) zone. Not usable
+                with traffic_mode='historical'.
             alternative: Also return alternative routes.
-            bearing: Optional heading (0-360) at the origin.
+            bearing: Optional heading (0-360) at the origin. Only usable with
+                traffic_mode 'live' or 'typical'.
+            routing_type: Required when traffic_mode='historical'. 'DepartAt' to
+                specify departure time, 'ArriveAt' for arrival time.
+            date_time: Required when traffic_mode='historical'. Target date and
+                time as 'YYYY-MM-DDThh:mm' (no timezone, UTC+0).
         """
         return await handlers.handle_direction(
-            client, origin_lat=origin_lat, origin_lng=origin_lng,
-            dest_lat=dest_lat, dest_lng=dest_lng, vehicle=vehicle,
-            waypoints=waypoints, avoid_traffic_zone=avoid_traffic_zone,
-            avoid_odd_even_zone=avoid_odd_even_zone, alternative=alternative, bearing=bearing,
-        )
-
-    @mcp.tool
-    async def neshan_direction_no_traffic(
-        origin_lat: Latitude, origin_lng: Longitude, dest_lat: Latitude, dest_lng: Longitude,
-        vehicle: Vehicle = "car", waypoints: list[list[float]] | None = None,
-        avoid_traffic_zone: bool = False, avoid_odd_even_zone: bool = False,
-        alternative: bool = False,
-    ):
-        """Calculate a route based on STATIC (no live) traffic."""
-        return await handlers.handle_direction_no_traffic(
-            client, origin_lat=origin_lat, origin_lng=origin_lng,
-            dest_lat=dest_lat, dest_lng=dest_lng, vehicle=vehicle,
-            waypoints=waypoints, avoid_traffic_zone=avoid_traffic_zone,
-            avoid_odd_even_zone=avoid_odd_even_zone, alternative=alternative,
+            client,
+            origin_lat=origin_lat, origin_lng=origin_lng,
+            dest_lat=dest_lat, dest_lng=dest_lng,
+            traffic_mode=traffic_mode, vehicle=vehicle,
+            waypoints=waypoints,
+            avoid_traffic_zone=avoid_traffic_zone,
+            avoid_odd_even_zone=avoid_odd_even_zone,
+            alternative=alternative, bearing=bearing,
+            routing_type=routing_type, date_time=date_time,
         )
 
     @mcp.tool
@@ -96,105 +112,6 @@ def register(mcp, client: NeshanClient) -> None:
             path_points: The recorded track as [[lat, lng], ...].
         """
         return await handlers.handle_map_matching(client, path_points)
-
-    @mcp.tool
-    async def neshan_direction_pedestrian(
-        origin_lat: Latitude, origin_lng: Longitude,
-        dest_lat: Latitude, dest_lng: Longitude,
-        waypoints: list[list[float]] | None = None,
-        alternative: bool = False,
-        bearing: Bearing | None = None,
-    ):
-        """Calculate the best walking route between two points (pedestrian routing).
-
-        Uses safe, pedestrian-friendly paths. Returns the same route structure as
-        neshan_direction but optimised for on-foot travel.
-
-        Args:
-            origin_lat, origin_lng: Start point.
-            dest_lat, dest_lng: End point.
-            waypoints: Optional intermediate stops as [[lat, lng], ...].
-            alternative: Return alternative routes if available.
-            bearing: Optional heading (0-360) at the origin.
-        """
-        return await handlers.handle_direction(
-            client,
-            origin_lat=origin_lat, origin_lng=origin_lng,
-            dest_lat=dest_lat, dest_lng=dest_lng,
-            vehicle="pedestrian",
-            waypoints=waypoints,
-            avoid_traffic_zone=False,
-            avoid_odd_even_zone=False,
-            alternative=alternative,
-            bearing=bearing,
-        )
-
-    @mcp.tool
-    async def neshan_direction_typical(
-        origin_lat: Latitude, origin_lng: Longitude,
-        dest_lat: Latitude, dest_lng: Longitude,
-        waypoints: list[list[float]] | None = None,
-        avoid_traffic_zone: bool = False,
-        avoid_odd_even_zone: bool = False,
-        alternative: bool = False,
-        bearing: Bearing | None = None,
-    ):
-        """Calculate a car route using typical (pattern-based) traffic updated every 15 minutes.
-
-        Useful for reliable ETA estimates when live traffic is unavailable or unstable.
-
-        Args:
-            origin_lat, origin_lng: Start point.
-            dest_lat, dest_lng: End point.
-            waypoints: Optional intermediate stops as [[lat, lng], ...].
-            avoid_traffic_zone: Avoid the central traffic (طرح ترافیک) zone.
-            avoid_odd_even_zone: Avoid the odd/even (زوج و فرد) zone.
-            alternative: Return alternative routes if available.
-            bearing: Optional heading (0-360) at the origin.
-        """
-        return await handlers.handle_direction_typical(
-            client,
-            origin_lat=origin_lat, origin_lng=origin_lng,
-            dest_lat=dest_lat, dest_lng=dest_lng,
-            vehicle="car",
-            waypoints=waypoints,
-            avoid_traffic_zone=avoid_traffic_zone,
-            avoid_odd_even_zone=avoid_odd_even_zone,
-            alternative=alternative,
-            bearing=bearing,
-        )
-
-    @mcp.tool
-    async def neshan_direction_historical(
-        origin_lat: Latitude, origin_lng: Longitude,
-        dest_lat: Latitude, dest_lng: Longitude,
-        routing_type: Literal["DepartAt", "ArriveAt"],
-        date_time: str,
-        avoid_traffic_zone: bool = False,
-        alternative: bool = False,
-    ):
-        """Calculate the best car route for a future date/time using historical traffic data.
-
-        Currently available for Tehran, Mashhad, and Karaj only.
-        Supports planning up to one week ahead.
-
-        Args:
-            origin_lat, origin_lng: Start point.
-            dest_lat, dest_lng: End point.
-            routing_type: 'DepartAt' to specify departure time, 'ArriveAt' for arrival time.
-            date_time: Target date and time in 'YYYY-MM-DDThh:mm' format (no timezone, UTC+0).
-            avoid_traffic_zone: Avoid the central traffic (طرح ترافیک) zone.
-            alternative: Return alternative routes if available.
-        """
-        return await handlers.handle_direction_historical(
-            client,
-            origin_lat=origin_lat, origin_lng=origin_lng,
-            dest_lat=dest_lat, dest_lng=dest_lng,
-            routing_type=routing_type,
-            date_time=date_time,
-            avoid_traffic_zone=avoid_traffic_zone,
-            alternative=alternative,
-        )
 
     @mcp.tool
     async def neshan_isochrone(

@@ -8,9 +8,6 @@ from .zipcodeHandler import handle_zipcode
 from .vrpHandler import handle_vrp_logistic
 from .routingHandler import (
     handle_direction,
-    handle_direction_historical,
-    handle_direction_no_traffic,
-    handle_direction_typical,
     handle_distance_matrix,
     handle_isochrone,
     handle_map_matching,
@@ -29,9 +26,6 @@ __all__ = [
     "handle_geocode",
     "handle_geocode_plus",
     "handle_direction",
-    "handle_direction_no_traffic",
-    "handle_direction_typical",
-    "handle_direction_historical",
     "handle_distance_matrix",
     "handle_tsp",
     "handle_map_matching",

@@ -39,8 +39,8 @@ def register(mcp, client: NeshanClient) -> None:
             zoom: Initial zoom level (2–21). Auto-calculated when markers/routes are present.
             markers: Marker objects to place on the map.
             routes: Route objects to draw. Each needs either 'encoded_polyline'
-                (the overview_polyline field returned by neshan_direction and its
-                variants) or a raw 'coordinates' list.
+                (the overview_polyline field returned by neshan_direction) or a
+                raw 'coordinates' list.
             show_traffic: Overlay live traffic layer on the map.
             show_poi: Show points of interest labels on the map.
             map_key: Neshan Web SDK API key (different from service key).
