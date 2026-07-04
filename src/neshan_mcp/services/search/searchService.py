@@ -13,7 +13,7 @@ from .types import GeocodeResponse, ReverseResponse, SearchResponse
 async def search(client: NeshanClient, data: SearchInput) -> SearchResponse:
     return await client.get_json(
         Endpoints.SEARCH, service="search",
-        params={"term": data.term, "lat": data.lat, "lng": data.lng},
+        params={"q": json.dumps(data.to_payload(), ensure_ascii=False)},
     )
 
 

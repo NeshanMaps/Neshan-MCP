@@ -11,6 +11,32 @@ from .common import LatLng
 
 class SearchInput(LatLng):
     term: str = Field(min_length=1)
+    sw_lat: float | None = Field(default=None, ge=-90, le=90)
+    sw_lng: float | None = Field(default=None, ge=-180, le=180)
+    ne_lat: float | None = Field(default=None, ge=-90, le=90)
+    ne_lng: float | None = Field(default=None, ge=-180, le=180)
+    layer_slug: str | None = None
+
+    @model_validator(mode="after")
+    def _check_bound_pair(self):
+        bound = (self.sw_lat, self.sw_lng, self.ne_lat, self.ne_lng)
+        if any(v is not None for v in bound) and any(v is None for v in bound):
+            raise ValueError("bound requires sw_lat, sw_lng, ne_lat, ne_lng together")
+        return self
+
+    def to_payload(self) -> dict[str, Any]:
+        payload: dict[str, Any] = {
+            "term": self.term,
+            "center": {"latitude": self.lat, "longitude": self.lng},
+        }
+        if self.sw_lat is not None:
+            payload["bound"] = {
+                "southWest": {"latitude": self.sw_lat, "longitude": self.sw_lng},
+                "northEast": {"latitude": self.ne_lat, "longitude": self.ne_lng},
+            }
+        if self.layer_slug:
+            payload["layerSlug"] = self.layer_slug
+        return payload
 
 
 class ReverseInput(LatLng):
