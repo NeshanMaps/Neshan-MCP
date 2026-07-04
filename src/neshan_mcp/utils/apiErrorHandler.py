@@ -8,6 +8,11 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from .logger import get_logger
+from .responseTrimmer import trim_response
+
+logger = get_logger("neshan_mcp.errors")
+
 # Documented Neshan error meanings (HTTP status -> hint).
 ERROR_HINTS = {
     400: "Invalid request / invalid coordinates.",
@@ -44,7 +49,8 @@ def handle_api_errors(fn: Callable[..., Awaitable[Any]]) -> Callable[..., Awaita
     @functools.wraps(fn)
     async def wrapper(*args, **kwargs):
         try:
-            return await fn(*args, **kwargs)
+            result = await fn(*args, **kwargs)
+            return trim_response(result)
         except ValidationError as e:
             first = e.errors()[0] if e.errors() else {}
             loc = ".".join(str(x) for x in first.get("loc", ()))
@@ -54,5 +60,13 @@ def handle_api_errors(fn: Callable[..., Awaitable[Any]]) -> Callable[..., Awaita
             return _validation_dict(str(e))
         except NeshanError as e:
             return e.as_dict()
+        except Exception as e:
+            logger.exception("unhandled error in %s", fn.__name__)
+            return {
+                "error": True,
+                "status": None,
+                "message": f"Internal error: {e}",
+                "hint": "This is unexpected — please report it.",
+            }
 
     return wrapper

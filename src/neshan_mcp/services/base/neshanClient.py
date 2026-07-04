@@ -86,12 +86,27 @@ class NeshanClient:
                 await asyncio.sleep(0.4 * (attempt + 1))
                 continue
 
+            if resp.status_code == 429 and attempt < settings.max_retries:
+                delay = _retry_after_seconds(resp.headers.get("Retry-After")) or 0.8 * (attempt + 1)
+                logger.warning("429 on %s (attempt %d): backing off %.1fs", path, attempt, delay)
+                await asyncio.sleep(delay)
+                continue
+
             if resp.status_code >= 400:
                 raise NeshanError(resp.status_code, _message_of(resp), _safe_json(resp))
 
             return resp.json() if expect_json else resp.content
 
         raise NeshanError(None, f"Network failure after retries: {last_exc}")
+
+
+def _retry_after_seconds(value: str | None) -> float | None:
+    if not value:
+        return None
+    try:
+        return float(value)
+    except ValueError:
+        return None  # Retry-After as an HTTP date isn't parsed; fall back to the default backoff.
 
 
 def _safe_json(resp: httpx.Response) -> Any:

@@ -1,4 +1,4 @@
-"""Response shaping shared by handlers.
+"""Response shaping applied to every handler result.
 
 Hook for trimming verbose API responses before they reach the model. Kept
 conservative: only strips top-level null fields so nothing meaningful is lost.

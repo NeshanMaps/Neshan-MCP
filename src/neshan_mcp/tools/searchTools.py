@@ -28,6 +28,12 @@ def register(mcp, client: NeshanClient) -> None:
             sw_lat / sw_lng: South-west corner of a bounding box to restrict results.
             ne_lat / ne_lng: North-east corner of a bounding box to restrict results.
             layer_slug: Filter results by category/layer slug (e.g. "park").
+
+        Returns:
+            Raw Neshan search response (see platform.neshan.org docs for the full
+            field list). Each item includes a 'neshan_links' entry for opening it
+            in the Neshan app/web, and its 'poiHash' can be passed to
+            neshan_get_point_by_hash for full place details.
         """
         return await handlers.handle_search(
             client, term, lat, lng,
@@ -42,6 +48,9 @@ def register(mcp, client: NeshanClient) -> None:
         Args:
             lat: Latitude.
             lng: Longitude.
+
+        Returns:
+            Raw Neshan reverse-geocode response, plus a top-level 'neshan_links' entry.
         """
         return await handlers.handle_reverse_geocode(client, lat, lng)
 
@@ -51,6 +60,9 @@ def register(mcp, client: NeshanClient) -> None:
 
         Args:
             address: The address text (street, plaque, landmark, etc.).
+
+        Returns:
+            Raw Neshan geocode response, plus a top-level 'neshan_links' entry.
         """
         return await handlers.handle_geocode(client, address)
 
@@ -75,6 +87,9 @@ def register(mcp, client: NeshanClient) -> None:
             bias_lat / bias_lng: A location to bias results toward.
             sw_lat / sw_lng: South-west corner of a bounding box.
             ne_lat / ne_lng: North-east corner of a bounding box.
+
+        Returns:
+            Raw Neshan geocode response, plus a top-level 'neshan_links' entry.
         """
         return await handlers.handle_geocode_plus(
             client, address=address, city=city, province=province,

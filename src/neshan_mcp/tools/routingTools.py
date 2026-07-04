@@ -59,6 +59,13 @@ def register(mcp, client: NeshanClient) -> None:
                 specify departure time, 'ArriveAt' for arrival time.
             date_time: Required when traffic_mode='historical'. Target date and
                 time as 'YYYY-MM-DDThh:mm' (no timezone, UTC+0).
+
+        Returns:
+            Raw Neshan direction response (see platform.neshan.org docs for the
+            full field list), including an 'overview_polyline' field that can be
+            passed as 'encoded_polyline' to neshan_map_view to draw the route.
+            Also includes a top-level 'neshan_links' entry for opening the route
+            in the Neshan app/web.
         """
         return await handlers.handle_direction(
             client,
@@ -81,6 +88,11 @@ def register(mcp, client: NeshanClient) -> None:
         Args:
             origins: Origin points as [[lat, lng], ...].
             destinations: Destination points as [[lat, lng], ...].
+
+        Returns:
+            Raw Neshan distance-matrix response: distance and duration for each
+            origin-destination pair (see platform.neshan.org docs for exact shape
+            and units).
         """
         return await handlers.handle_distance_matrix(client, origins, destinations)
 
@@ -96,6 +108,10 @@ def register(mcp, client: NeshanClient) -> None:
             round_trip: If True, the route returns to the start point.
             source_is_any_point: Let the optimizer choose any stop as start.
             last_is_any_point: Let the optimizer choose any stop as the end.
+
+        Returns:
+            Raw Neshan trip-optimization response: the optimized visiting order
+            and route geometry (see platform.neshan.org docs for exact shape).
         """
         return await handlers.handle_tsp(
             client, waypoints=waypoints, round_trip=round_trip,
@@ -110,6 +126,10 @@ def register(mcp, client: NeshanClient) -> None:
 
         Args:
             path_points: The recorded track as [[lat, lng], ...].
+
+        Returns:
+            Raw Neshan map-matching response (shape unverified — see the
+            NESHAN_MAP_MATCHING_PATH note in this server's config).
         """
         return await handlers.handle_map_matching(client, path_points)
 
