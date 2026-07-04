@@ -6,15 +6,16 @@ from typing import Any
 
 from pydantic import BaseModel, Field, model_validator
 
+from ..shared import Latitude, Longitude
 from .common import LatLng
 
 
 class SearchInput(LatLng):
     term: str = Field(min_length=1)
-    sw_lat: float | None = Field(default=None, ge=-90, le=90)
-    sw_lng: float | None = Field(default=None, ge=-180, le=180)
-    ne_lat: float | None = Field(default=None, ge=-90, le=90)
-    ne_lng: float | None = Field(default=None, ge=-180, le=180)
+    sw_lat: Latitude | None = None
+    sw_lng: Longitude | None = None
+    ne_lat: Latitude | None = None
+    ne_lng: Longitude | None = None
     layer_slug: str | None = None
 
     @model_validator(mode="after")
@@ -51,12 +52,12 @@ class GeocodePlusInput(BaseModel):
     address: str = Field(min_length=1)
     city: str | None = None
     province: str | None = None
-    bias_lat: float | None = Field(default=None, ge=-90, le=90)
-    bias_lng: float | None = Field(default=None, ge=-180, le=180)
-    sw_lat: float | None = Field(default=None, ge=-90, le=90)
-    sw_lng: float | None = Field(default=None, ge=-180, le=180)
-    ne_lat: float | None = Field(default=None, ge=-90, le=90)
-    ne_lng: float | None = Field(default=None, ge=-180, le=180)
+    bias_lat: Latitude | None = None
+    bias_lng: Longitude | None = None
+    sw_lat: Latitude | None = None
+    sw_lng: Longitude | None = None
+    ne_lat: Latitude | None = None
+    ne_lng: Longitude | None = None
 
     @model_validator(mode="after")
     def _check_pairs(self):

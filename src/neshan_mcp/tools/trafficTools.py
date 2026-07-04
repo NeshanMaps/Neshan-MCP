@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 from .. import handlers
+from ..schemas.shared import Latitude, Longitude
 from ..services import NeshanClient
 
 
 def register(mcp, client: NeshanClient) -> None:
     @mcp.tool
-    async def neshan_traffic_analytics(lat: float, lng: float):
+    async def neshan_traffic_analytics(lat: Latitude, lng: Longitude):
         """Analyse historical traffic patterns around a location.
 
         Returns three things:

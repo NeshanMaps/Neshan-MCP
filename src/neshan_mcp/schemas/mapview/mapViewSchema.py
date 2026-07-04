@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
-from typing import Any
 from pydantic import BaseModel, Field
+
+from ..shared import Latitude, Longitude
 
 
 class MarkerInput(BaseModel):
-    lat: float = Field(ge=-90, le=90)
-    lng: float = Field(ge=-180, le=180)
+    lat: Latitude
+    lng: Longitude
     label: str = ""
     color: str = "#E53935"  # قرمز پیش‌فرض
 
@@ -22,8 +23,8 @@ class RouteInput(BaseModel):
 
 
 class MapViewInput(BaseModel):
-    center_lat: float = Field(default=35.6892, ge=-90, le=90)
-    center_lng: float = Field(default=51.389, ge=-180, le=180)
+    center_lat: Latitude = 35.6892
+    center_lng: Longitude = 51.389
     zoom: int = Field(default=12, ge=2, le=21)
     markers: list[MarkerInput] = Field(default_factory=list)
     routes: list[RouteInput] = Field(default_factory=list)

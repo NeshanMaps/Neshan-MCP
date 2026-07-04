@@ -2,17 +2,25 @@
 
 from __future__ import annotations
 
+from typing import Annotated, Literal
+
+from pydantic import Field
+
 from .. import handlers
+from ..schemas.routing.common import Vehicle
+from ..schemas.shared import Latitude, Longitude
 from ..services import NeshanClient
+
+Bearing = Annotated[int, Field(ge=0, le=360)]
 
 
 def register(mcp, client: NeshanClient) -> None:
     @mcp.tool
     async def neshan_direction(
-        origin_lat: float, origin_lng: float, dest_lat: float, dest_lng: float,
-        vehicle: str = "car", waypoints: list[list[float]] | None = None,
+        origin_lat: Latitude, origin_lng: Longitude, dest_lat: Latitude, dest_lng: Longitude,
+        vehicle: Vehicle = "car", waypoints: list[list[float]] | None = None,
         avoid_traffic_zone: bool = False, avoid_odd_even_zone: bool = False,
-        alternative: bool = False, bearing: int | None = None,
+        alternative: bool = False, bearing: Bearing | None = None,
     ):
         """Calculate a route between two points using LIVE traffic.
 
@@ -35,8 +43,8 @@ def register(mcp, client: NeshanClient) -> None:
 
     @mcp.tool
     async def neshan_direction_no_traffic(
-        origin_lat: float, origin_lng: float, dest_lat: float, dest_lng: float,
-        vehicle: str = "car", waypoints: list[list[float]] | None = None,
+        origin_lat: Latitude, origin_lng: Longitude, dest_lat: Latitude, dest_lng: Longitude,
+        vehicle: Vehicle = "car", waypoints: list[list[float]] | None = None,
         avoid_traffic_zone: bool = False, avoid_odd_even_zone: bool = False,
         alternative: bool = False,
     ):
@@ -91,11 +99,11 @@ def register(mcp, client: NeshanClient) -> None:
 
     @mcp.tool
     async def neshan_direction_pedestrian(
-        origin_lat: float, origin_lng: float,
-        dest_lat: float, dest_lng: float,
+        origin_lat: Latitude, origin_lng: Longitude,
+        dest_lat: Latitude, dest_lng: Longitude,
         waypoints: list[list[float]] | None = None,
         alternative: bool = False,
-        bearing: int | None = None,
+        bearing: Bearing | None = None,
     ):
         """Calculate the best walking route between two points (pedestrian routing).
 
@@ -123,13 +131,13 @@ def register(mcp, client: NeshanClient) -> None:
 
     @mcp.tool
     async def neshan_direction_typical(
-        origin_lat: float, origin_lng: float,
-        dest_lat: float, dest_lng: float,
+        origin_lat: Latitude, origin_lng: Longitude,
+        dest_lat: Latitude, dest_lng: Longitude,
         waypoints: list[list[float]] | None = None,
         avoid_traffic_zone: bool = False,
         avoid_odd_even_zone: bool = False,
         alternative: bool = False,
-        bearing: int | None = None,
+        bearing: Bearing | None = None,
     ):
         """Calculate a car route using typical (pattern-based) traffic updated every 15 minutes.
 
@@ -158,9 +166,9 @@ def register(mcp, client: NeshanClient) -> None:
 
     @mcp.tool
     async def neshan_direction_historical(
-        origin_lat: float, origin_lng: float,
-        dest_lat: float, dest_lng: float,
-        routing_type: str,
+        origin_lat: Latitude, origin_lng: Longitude,
+        dest_lat: Latitude, dest_lng: Longitude,
+        routing_type: Literal["DepartAt", "ArriveAt"],
         date_time: str,
         avoid_traffic_zone: bool = False,
         alternative: bool = False,
@@ -190,8 +198,8 @@ def register(mcp, client: NeshanClient) -> None:
 
     @mcp.tool
     async def neshan_isochrone(
-        lat: float,
-        lng: float,
+        lat: Latitude,
+        lng: Longitude,
         distance: float | None = None,
         time: float | None = None,
         polygon: bool = False,

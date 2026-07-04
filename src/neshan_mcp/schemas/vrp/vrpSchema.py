@@ -6,6 +6,8 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
+from ..shared import Latitude, Longitude
+
 
 class VRPTimeWindow(BaseModel):
     from_time: str = Field(alias="from", description="Start time, e.g. '06:00:00'.")
@@ -15,8 +17,8 @@ class VRPTimeWindow(BaseModel):
 
 
 class VRPLocation(BaseModel):
-    latitude: float = Field(ge=-90, le=90)
-    longitude: float = Field(ge=-180, le=180)
+    latitude: Latitude
+    longitude: Longitude
 
 
 class VRPVehicle(BaseModel):

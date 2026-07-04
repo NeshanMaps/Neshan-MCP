@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from .. import handlers
+from ..schemas.shared import Latitude, Longitude
 from ..services import NeshanClient
 
 
@@ -10,12 +11,12 @@ def register(mcp, client: NeshanClient) -> None:
     @mcp.tool
     async def neshan_search(
         term: str,
-        lat: float,
-        lng: float,
-        sw_lat: float | None = None,
-        sw_lng: float | None = None,
-        ne_lat: float | None = None,
-        ne_lng: float | None = None,
+        lat: Latitude,
+        lng: Longitude,
+        sw_lat: Latitude | None = None,
+        sw_lng: Longitude | None = None,
+        ne_lat: Latitude | None = None,
+        ne_lng: Longitude | None = None,
         layer_slug: str | None = None,
     ):
         """Search for places, addresses and POIs near a location in Iran.
@@ -35,7 +36,7 @@ def register(mcp, client: NeshanClient) -> None:
         )
 
     @mcp.tool
-    async def neshan_reverse_geocode(lat: float, lng: float):
+    async def neshan_reverse_geocode(lat: Latitude, lng: Longitude):
         """Convert coordinates into a human-readable Persian address.
 
         Args:
@@ -58,12 +59,12 @@ def register(mcp, client: NeshanClient) -> None:
         address: str,
         city: str | None = None,
         province: str | None = None,
-        bias_lat: float | None = None,
-        bias_lng: float | None = None,
-        sw_lat: float | None = None,
-        sw_lng: float | None = None,
-        ne_lat: float | None = None,
-        ne_lng: float | None = None,
+        bias_lat: Latitude | None = None,
+        bias_lng: Longitude | None = None,
+        sw_lat: Latitude | None = None,
+        sw_lng: Longitude | None = None,
+        ne_lat: Latitude | None = None,
+        ne_lng: Longitude | None = None,
     ):
         """Geocode an address with extra hints for higher accuracy.
 

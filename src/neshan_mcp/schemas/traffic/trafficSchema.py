@@ -4,7 +4,9 @@ from __future__ import annotations
 
 from pydantic import BaseModel, Field
 
+from ..shared import Latitude, Longitude
+
 
 class TrafficAnalyticsInput(BaseModel):
-    lat: float = Field(ge=-90, le=90, description="Latitude of the location.")
-    lng: float = Field(ge=-180, le=180, description="Longitude of the location.")
+    lat: Latitude = Field(description="Latitude of the location.")
+    lng: Longitude = Field(description="Longitude of the location.")
