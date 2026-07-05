@@ -31,9 +31,20 @@ def register(mcp, client: NeshanClient) -> None:
 
         Returns:
             Raw Neshan search response (see platform.neshan.org docs for the full
-            field list). To get a shareable link or full details for one specific
-            result, pass its 'poiHash' to neshan_get_point_by_hash — that also
-            returns a 'neshan_links' entry.
+            field list), with each item annotated with a boolean
+            'verified_details_available'. Only items where this is true have an
+            owner-claimed profile and a 'poiHash' — pass that hash to
+            neshan_get_point_by_hash to fetch confirmed details (working hours,
+            phone, etc.).
+
+            Items where 'verified_details_available' is false have NO data in
+            Neshan at all (not "closed" — simply unverified). Do not exclude
+            them from results or assume they don't meet the query's criteria.
+            neshan_get_point_by_hash is expensive, so call it selectively (e.g.
+            only for the few candidates you actually need confirmed info on),
+            not for every result. When answering a question like "which cafes
+            are open at 8am", report it as e.g. "3 confirmed open; 12 more have
+            no hours data and may also be open."
         """
         return await handlers.handle_search(
             client, term, lat, lng,

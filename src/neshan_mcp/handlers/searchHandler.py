@@ -17,6 +17,21 @@ def _attach_geocode_links(result: dict) -> None:
         result["neshan_links"] = point_links(ilat, ilng)
 
 
+def _annotate_verified_details(result: dict) -> dict:
+    """Flag whether each item has an owner-claimed profile (poiHash).
+
+    Unclaimed places have no working-hours/phone/etc. data in Neshan at
+    all — 'verified_details_available: false' means "unknown", not
+    "closed". Calling neshan_get_point_by_hash only works for items
+    where this is true, and it's an expensive call, so callers should
+    fetch it selectively rather than for every result.
+    """
+    for item in result.get("items", []):
+        if isinstance(item, dict):
+            item["verified_details_available"] = "poiHash" in item
+    return result
+
+
 @handle_api_errors
 async def handle_search(
     client: NeshanClient,
@@ -30,7 +45,7 @@ async def handle_search(
     ne_lng: float | None = None,
     layer_slug: str | None = None,
 ) -> dict[str, Any]:
-    return await searchService.search(
+    result = await searchService.search(
         client,
         SearchInput(
             term=term, lat=lat, lng=lng,
@@ -38,6 +53,7 @@ async def handle_search(
             layer_slug=layer_slug,
         ),
     )
+    return _annotate_verified_details(result)
 
 
 @handle_api_errors
