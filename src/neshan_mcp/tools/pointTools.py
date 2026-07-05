@@ -11,8 +11,11 @@ def register(mcp, client: NeshanClient) -> None:
     async def neshan_get_point_by_hash(hash: str):
         """Fetch full details of a place using its poiHash from neshan_search results.
 
-        Call this after neshan_search when you need richer information about a specific
-        result — precise address, category, coordinates, neighbourhood, working hours, and region.
+        Only works for items where neshan_search marked
+        'verified_details_available: true' (owner-claimed places). This call is
+        expensive — use it selectively for specific candidates you need confirmed
+        details on (precise address, category, working hours, region), not as a
+        blanket follow-up for every search result.
 
         Args:
             hash: The poiHash value taken from a result item returned by neshan_search.
