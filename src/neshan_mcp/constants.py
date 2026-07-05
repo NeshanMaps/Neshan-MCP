@@ -27,8 +27,7 @@ class Endpoints:
     ZIPCODE = "/zipcode/simple"                               # [verified]
     VRP_LOGISTIC = "/vrp/logistic"                            # [verified] POST
     POINT = "/v1/point"                                       # [verified]
-    # [VERIFY] path/params not confirmed against live docs.
-    MAP_MATCHING = os.getenv("NESHAN_MAP_MATCHING_PATH", "/mapMatching/v1/snapToRoad")
+    MAP_MATCHING = os.getenv("NESHAN_MAP_MATCHING_PATH", "/v3/map-matching")  # [verified] POST json={"path": ...}
 
 
 # Client header names (lowercased; FastMCP lowercases header keys).

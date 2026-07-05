@@ -64,10 +64,9 @@ async def tsp(client: NeshanClient, data: TspInput) -> TspResponse:
 
 
 async def map_matching(client: NeshanClient, data: MapMatchingInput) -> MapMatchingResponse:
-    # [VERIFY] endpoint path/param not confirmed against live docs.
-    return await client.get_json(
+    return await client.post_json(
         Endpoints.MAP_MATCHING, service="map_matching",
-        params={"path": coord_list(data.path_points)},
+        body={"path": coord_list(data.path_points)},
     )
 
 
