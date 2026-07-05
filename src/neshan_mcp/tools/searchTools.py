@@ -31,9 +31,9 @@ def register(mcp, client: NeshanClient) -> None:
 
         Returns:
             Raw Neshan search response (see platform.neshan.org docs for the full
-            field list). Each item includes a 'neshan_links' entry for opening it
-            in the Neshan app/web, and its 'poiHash' can be passed to
-            neshan_get_point_by_hash for full place details.
+            field list). To get a shareable link or full details for one specific
+            result, pass its 'poiHash' to neshan_get_point_by_hash — that also
+            returns a 'neshan_links' entry.
         """
         return await handlers.handle_search(
             client, term, lat, lng,

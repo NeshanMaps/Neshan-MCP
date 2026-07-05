@@ -11,7 +11,6 @@ from ...utils import get_logger
 
 logger = get_logger("neshan_mcp.mapview")
 
-# CDN رسمی نشان (از README پکیج)
 _SDK_CSS = "https://static.neshan.org/sdk/mapboxgl/v1.13.2/neshan-sdk/v1.1.3/index.css"
 _SDK_JS  = "https://static.neshan.org/sdk/mapboxgl/v1.13.2/neshan-sdk/v1.1.3/index.js"
 
@@ -27,8 +26,6 @@ def _js_string(value: str) -> str:
     """
     return json.dumps(value).replace("</", "<\\/")
 
-
-# ---- polyline decoder (Google/Neshan encoded polyline) ----
 
 def _decode_polyline(encoded: str) -> list[list[float]]:
     """Decode Google encoded polyline to [[lat, lng], ...] list."""
@@ -84,7 +81,6 @@ def _auto_center(data: MapViewInput) -> tuple[float, float, int]:
     center_lat = (min_lat + max_lat) / 2
     center_lng = (min_lng + max_lng) / 2
 
-    # تخمین zoom بر اساس bbox
     lat_span = max(max_lat - min_lat, 0.001)
     lng_span = max(max_lng - min_lng, 0.001)
     span = max(lat_span, lng_span)

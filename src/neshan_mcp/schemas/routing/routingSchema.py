@@ -76,7 +76,7 @@ class HistoricalDirectionInput(BaseModel):
     dest_lat: Latitude
     dest_lng: Longitude
     routing_type: Literal["DepartAt", "ArriveAt"]
-    date_time: str  # YYYY-MM-DDThh:mm, up to one week ahead
+    date_time: str
     avoid_traffic_zone: bool = False
     alternative: bool = False
 

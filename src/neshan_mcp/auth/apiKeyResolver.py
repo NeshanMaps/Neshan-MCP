@@ -2,8 +2,8 @@
 
 HTTP mode (primary): the client sends the key per request:
     Neshan-Api-Key: <key>
-    Neshan-Api-Key-<service>: <key>   # optional per-service override
-    Api-Key: <key>                    # accepted alias
+    Neshan-Api-Key-<service>: <key>
+    Api-Key: <key>
 """
 
 from __future__ import annotations
