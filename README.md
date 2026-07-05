@@ -80,11 +80,7 @@ src/neshan_mcp/
 | `neshan_reverse_geocode` | search | `/v5/reverse` | تبدیل مختصات به آدرس |
 | `neshan_geocode` | search | `/geocoding/v1/` | تبدیل آدرس به مختصات |
 | `neshan_geocode_plus` | search | `/geocoding/v1/plus` | جئوکدینگ پیشرفته |
-| `neshan_direction` | routing | `/v4/direction` | مسیریابی با ترافیک لحظه‌ای |
-| `neshan_direction_no_traffic` | routing | `/v4/direction/no-traffic` | مسیریابی بدون ترافیک |
-| `neshan_direction_pedestrian` | routing | `/v4/direction` (`type=pedestrian`) | مسیریابی پیاده |
-| `neshan_direction_typical` | routing | `/v1/direction/typical` | مسیریابی با ترافیک معمول (هر ۱۵ دقیقه به‌روزرسانی) |
-| `neshan_direction_historical` | routing | `/v1/direction/historical` | مسیریابی برای زمان آینده بر اساس داده‌های تاریخی |
+| `neshan_direction` | routing | `/v4/direction`, `/v4/direction/no-traffic`, `/v1/direction/typical`, `/v1/direction/historical` | مسیریابی (car/motorcycle/pedestrian)؛ انتخاب حالت ترافیک با `traffic_mode`: `live` (لحظه‌ای)، `no_traffic` (بدون ترافیک)، `typical` (الگوی ترافیک، هر ۱۵ دقیقه به‌روزرسانی)، `historical` (زمان آینده بر اساس داده‌های تاریخی — فقط تهران/مشهد/کرج) |
 | `neshan_isochrone` | routing | `/v1/isochrone` | محاسبه ناحیه دسترس‌پذیر از یک نقطه در زمان/فاصله مشخص |
 | `neshan_distance_matrix` | routing | `/v1/distance-matrix` | ماتریس فاصله/زمان چند نقطه |
 | `neshan_tsp` | routing | `/v3/trip` | بهینه‌سازی مسیر چندایستگاهی (TSP) |

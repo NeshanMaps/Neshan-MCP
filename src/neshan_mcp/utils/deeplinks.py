@@ -4,10 +4,9 @@ from __future__ import annotations
 
 _WEB_BASE = "https://nshn.ir"
 
-# Internal vehicle name → Android/Web code (only car and motorcycle supported)
+# Only car and motorcycle are supported on Android/Web; iOS supports all five below.
 _AW_VEHICLE: dict[str, str] = {"car": "d", "motorcycle": "m"}
 
-# Internal vehicle name → iOS deeplink code
 _IOS_VEHICLE: dict[str, str] = {
     "car": "d",
     "motorcycle": "m",

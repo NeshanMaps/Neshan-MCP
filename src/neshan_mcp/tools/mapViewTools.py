@@ -2,7 +2,13 @@
 
 from __future__ import annotations
 
+from typing import Annotated
+
+from pydantic import Field
+
 from .. import handlers
+from ..schemas.mapview import MarkerInput, RouteInput
+from ..schemas.shared import Latitude, Longitude
 from ..services import NeshanClient
 
 
@@ -10,11 +16,11 @@ def register(mcp, client: NeshanClient) -> None:
     @mcp.tool
     async def neshan_map_view(
         title: str = "نقشه نشان",
-        center_lat: float = 35.6892,
-        center_lng: float = 51.389,
-        zoom: int = 12,
-        markers: list[dict] | None = None,
-        routes: list[dict] | None = None,
+        center_lat: Latitude = 35.6892,
+        center_lng: Longitude = 51.389,
+        zoom: Annotated[int, Field(ge=2, le=21)] = 12,
+        markers: list[MarkerInput] | None = None,
+        routes: list[RouteInput] | None = None,
         show_traffic: bool = False,
         show_poi: bool = True,
         map_key: str = "",
@@ -31,15 +37,10 @@ def register(mcp, client: NeshanClient) -> None:
             center_lat: Fallback center latitude (used when no markers/routes given).
             center_lng: Fallback center longitude.
             zoom: Initial zoom level (2–21). Auto-calculated when markers/routes are present.
-            markers: List of marker objects. Each object:
-                { "lat": float, "lng": float, "label": str, "color": "#E53935" }
-            routes: List of route objects. Each object:
-                {
-                  "encoded_polyline": str,   # overview_polyline from neshan_direction
-                  "coordinates": [[lat,lng]], # OR raw coordinate list
-                  "color": "#1565C0",
-                  "label": str
-                }
+            markers: Marker objects to place on the map.
+            routes: Route objects to draw. Each needs either 'encoded_polyline'
+                (the overview_polyline field returned by neshan_direction) or a
+                raw 'coordinates' list.
             show_traffic: Overlay live traffic layer on the map.
             show_poi: Show points of interest labels on the map.
             map_key: Neshan Web SDK API key (different from service key).

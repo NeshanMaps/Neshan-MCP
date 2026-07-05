@@ -13,6 +13,8 @@ from ...utils import NeshanError, get_logger
 
 logger = get_logger("neshan_mcp.http")
 
+_MAX_RETRY_AFTER = 5.0  # cap on server-supplied Retry-After so a tool call can't hang indefinitely
+
 
 class NeshanClient:
     def __init__(self) -> None:
@@ -86,12 +88,28 @@ class NeshanClient:
                 await asyncio.sleep(0.4 * (attempt + 1))
                 continue
 
+            if resp.status_code == 429 and attempt < settings.max_retries:
+                retry_after = _retry_after_seconds(resp.headers.get("Retry-After"))
+                delay = min(retry_after, _MAX_RETRY_AFTER) if retry_after is not None else 0.8 * (attempt + 1)
+                logger.warning("429 on %s (attempt %d): backing off %.1fs", path, attempt, delay)
+                await asyncio.sleep(delay)
+                continue
+
             if resp.status_code >= 400:
                 raise NeshanError(resp.status_code, _message_of(resp), _safe_json(resp))
 
             return resp.json() if expect_json else resp.content
 
         raise NeshanError(None, f"Network failure after retries: {last_exc}")
+
+
+def _retry_after_seconds(value: str | None) -> float | None:
+    if not value:
+        return None
+    try:
+        return float(value)
+    except ValueError:
+        return None  # Retry-After as an HTTP date isn't parsed; fall back to the default backoff.
 
 
 def _safe_json(resp: httpx.Response) -> Any:

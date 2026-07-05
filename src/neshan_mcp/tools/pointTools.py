@@ -16,5 +16,9 @@ def register(mcp, client: NeshanClient) -> None:
 
         Args:
             hash: The poiHash value taken from a result item returned by neshan_search.
+
+        Returns:
+            Raw Neshan point response (see platform.neshan.org docs), plus a
+            top-level 'neshan_links' entry for opening it in the Neshan app/web.
         """
         return await handlers.handle_get_point(client, hash)

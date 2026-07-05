@@ -11,8 +11,9 @@ from .tools import register_all
 
 INSTRUCTIONS = (
     "Tools for Iran's Neshan Maps Platform: place search, geocoding, reverse "
-    "geocoding, routing (car/motorcycle/pedestrian, live/typical/historical traffic), "
-    "isochrone, distance matrix, multi-stop optimization (TSP), static map images, "
+    "geocoding, routing (car/motorcycle/pedestrian; choose a traffic_mode of "
+    "live/no_traffic/typical/historical), isochrone, distance matrix, "
+    "multi-stop optimization (TSP), static map images, "
     "Neshan app deeplink generation, and traffic analytics. "
     "Search and routing results include neshan_links (android_web + ios) automatically. "
     "Traffic analytics returns a 24-hour congestion chart, an overall KPI score, "

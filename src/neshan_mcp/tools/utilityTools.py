@@ -2,20 +2,23 @@
 
 from __future__ import annotations
 
+from typing import Literal
+
+from ..schemas.shared import Latitude, Longitude
 from ..utils.deeplinks import point_links, routing_links
 
 
 def register(mcp, _client) -> None:
     @mcp.tool
     async def neshan_deeplink(
-        link_type: str,
-        lat: float | None = None,
-        lng: float | None = None,
-        origin_lat: float | None = None,
-        origin_lng: float | None = None,
-        dest_lat: float | None = None,
-        dest_lng: float | None = None,
-        vehicle: str = "car",
+        link_type: Literal["point", "routing"],
+        lat: Latitude | None = None,
+        lng: Longitude | None = None,
+        origin_lat: Latitude | None = None,
+        origin_lng: Longitude | None = None,
+        dest_lat: Latitude | None = None,
+        dest_lng: Longitude | None = None,
+        vehicle: Literal["car", "motorcycle", "pedestrian", "bicycle", "transit"] = "car",
     ) -> dict:
         """Generate Neshan app deeplinks for showing a point or navigating between two points.
 
@@ -34,10 +37,8 @@ def register(mcp, _client) -> None:
             if lat is None or lng is None:
                 raise ValueError("lat and lng are required for link_type='point'")
             return point_links(lat, lng)
-        if link_type == "routing":
-            if any(v is None for v in (origin_lat, origin_lng, dest_lat, dest_lng)):
-                raise ValueError(
-                    "origin_lat, origin_lng, dest_lat, dest_lng are required for link_type='routing'"
-                )
-            return routing_links(origin_lat, origin_lng, dest_lat, dest_lng, vehicle)
-        raise ValueError(f"Unknown link_type '{link_type}'. Use 'point' or 'routing'.")
+        if any(v is None for v in (origin_lat, origin_lng, dest_lat, dest_lng)):
+            raise ValueError(
+                "origin_lat, origin_lng, dest_lat, dest_lng are required for link_type='routing'"
+            )
+        return routing_links(origin_lat, origin_lng, dest_lat, dest_lng, vehicle)

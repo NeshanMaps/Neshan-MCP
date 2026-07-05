@@ -6,16 +6,7 @@ from typing import Any
 
 from ..schemas.search import GeocodeInput, GeocodePlusInput, ReverseInput, SearchInput
 from ..services import NeshanClient, searchService
-from ..utils import handle_api_errors, point_links, routing_links
-
-
-def _attach_point_links(result: dict) -> None:
-    """Add neshan_links to each item that carries a location."""
-    for item in result.get("items") or []:
-        loc = item.get("location") or {}
-        ilat, ilng = loc.get("y"), loc.get("x")
-        if ilat is not None and ilng is not None:
-            item["neshan_links"] = point_links(ilat, ilng)
+from ..utils import handle_api_errors, point_links
 
 
 def _attach_geocode_links(result: dict) -> None:
@@ -39,7 +30,7 @@ async def handle_search(
     ne_lng: float | None = None,
     layer_slug: str | None = None,
 ) -> dict[str, Any]:
-    result = await searchService.search(
+    return await searchService.search(
         client,
         SearchInput(
             term=term, lat=lat, lng=lng,
@@ -47,8 +38,6 @@ async def handle_search(
             layer_slug=layer_slug,
         ),
     )
-    _attach_point_links(result)
-    return result
 
 
 @handle_api_errors

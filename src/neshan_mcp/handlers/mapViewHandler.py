@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 import tempfile
-import time
+import uuid
 from typing import Any
 
 from ..schemas.mapview import MapViewInput, MarkerInput, RouteInput
@@ -21,23 +21,20 @@ async def handle_map_view(
     center_lat: float,
     center_lng: float,
     zoom: int,
-    markers: list[dict] | None,
-    routes: list[dict] | None,
+    markers: list[MarkerInput] | None,
+    routes: list[RouteInput] | None,
     title: str,
     show_traffic: bool,
     show_poi: bool,
     map_key: str,
 ) -> dict[str, Any]:
 
-    marker_objs = [MarkerInput(**m) for m in (markers or [])]
-    route_objs  = [RouteInput(**r) for r in (routes or [])]
-
     data = MapViewInput(
         center_lat=center_lat,
         center_lng=center_lng,
         zoom=zoom,
-        markers=marker_objs,
-        routes=route_objs,
+        markers=markers or [],
+        routes=routes or [],
         title=title,
         show_traffic=show_traffic,
         show_poi=show_poi,
@@ -46,7 +43,7 @@ async def handle_map_view(
 
     html = generate_map_html(data)
 
-    filename = f"neshan_map_{int(time.time())}.html"
+    filename = f"neshan_map_{uuid.uuid4().hex}.html"
     filepath = os.path.join(_OUTPUT_DIR, filename)
     with open(filepath, "w", encoding="utf-8") as f:
         f.write(html)
@@ -57,8 +54,8 @@ async def handle_map_view(
         "status": "ok",
         "file_path": filepath,
         "message": f"نقشه interactive در {filepath} ذخیره شد. آن را در مرورگر باز کنید.",
-        "markers_count": len(marker_objs),
-        "routes_count": len(route_objs),
+        "markers_count": len(data.markers),
+        "routes_count": len(data.routes),
         "note": (
             "برای نمایش نقشه پایه نشان، باید map_key (کلید Web SDK نشان) را وارد کنید. "
             "بدون آن، نقشه پایه نشان لود نمی‌شود ولی markers و مسیرها نمایش داده می‌شوند."
