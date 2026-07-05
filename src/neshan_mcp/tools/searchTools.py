@@ -31,9 +31,9 @@ def register(mcp, client: NeshanClient) -> None:
 
         Returns:
             Raw Neshan search response (see platform.neshan.org docs for the full
-            field list). Each item includes a 'neshan_links' entry for opening it
-            in the Neshan app/web, and its 'poiHash' can be passed to
-            neshan_get_point_by_hash for full place details.
+            field list). To get a shareable link or full details for one specific
+            result, pass its 'poiHash' to neshan_get_point_by_hash — that also
+            returns a 'neshan_links' entry.
         """
         return await handlers.handle_search(
             client, term, lat, lng,
@@ -58,6 +58,10 @@ def register(mcp, client: NeshanClient) -> None:
     async def neshan_geocode(address: str):
         """Convert a free-text Persian address into geographic coordinates.
 
+        Use neshan_geocode_plus instead when you have a city/province name or a
+        nearby location to disambiguate — it's more accurate whenever that
+        context is available.
+
         Args:
             address: The address text (street, plaque, landmark, etc.).
 
@@ -79,6 +83,10 @@ def register(mcp, client: NeshanClient) -> None:
         ne_lng: Longitude | None = None,
     ):
         """Geocode an address with extra hints for higher accuracy.
+
+        Prefer this over neshan_geocode whenever you know the city/province or
+        have a nearby location to bias toward — the plain address text alone is
+        often ambiguous across Iran.
 
         Args:
             address: The address text.
