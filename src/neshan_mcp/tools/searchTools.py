@@ -58,8 +58,13 @@ def register(mcp, client: NeshanClient) -> None:
     async def neshan_geocode(address: str):
         """Convert a free-text Persian address into geographic coordinates.
 
+        Cheaper than neshan_geocode_plus — prefer this by default. Switch to
+        neshan_geocode_plus only when the address includes a plaque (پلاک)
+        number or refers to a point of interest by name, which this endpoint
+        does not resolve.
+
         Args:
-            address: The address text (street, plaque, landmark, etc.).
+            address: The address text (street, landmark, etc.).
 
         Returns:
             Raw Neshan geocode response, plus a top-level 'neshan_links' entry.
@@ -78,15 +83,22 @@ def register(mcp, client: NeshanClient) -> None:
         ne_lat: Latitude | None = None,
         ne_lng: Longitude | None = None,
     ):
-        """Geocode an address with extra hints for higher accuracy.
+        """Geocode an address that includes a plaque (پلاک) number or a named
+        point of interest — neshan_geocode can't resolve those.
+
+        More expensive than neshan_geocode, so only use this when plaque/POI
+        resolution is actually needed. Whenever available, pass city,
+        province, a bias location, and/or a bounding box: all of them improve
+        geocoding accuracy regardless of whether plaque/POI resolution is
+        involved.
 
         Args:
             address: The address text.
-            city: City name to disambiguate.
-            province: Province name to disambiguate.
-            bias_lat / bias_lng: A location to bias results toward.
-            sw_lat / sw_lng: South-west corner of a bounding box.
-            ne_lat / ne_lng: North-east corner of a bounding box.
+            city: City name — improves accuracy.
+            province: Province name — improves accuracy.
+            bias_lat / bias_lng: A location to bias results toward — improves accuracy.
+            sw_lat / sw_lng: South-west corner of a bounding box to restrict results.
+            ne_lat / ne_lng: North-east corner of a bounding box to restrict results.
 
         Returns:
             Raw Neshan geocode response, plus a top-level 'neshan_links' entry.
