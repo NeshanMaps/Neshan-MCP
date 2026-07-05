@@ -1,99 +1,56 @@
 # Neshan MCP Server
 
-سرور [MCP](https://modelcontextprotocol.io) برای پلتفرم نقشه نشان. وب‌سرویس‌های نشان (جستجو، جئوکدینگ، مسیریابی خودرو/پیاده/تاریخی/معمول، ایزوکرون، ماتریس فاصله، TSP، نقشه استاتیک، نقشه استاتیک با کمان، map matching، تحلیل ترافیک، جستجوی کد پستی و مسیریابی ناوگان VRP) را به‌صورت ابزارهای MCP در اختیار محیط‌های هوش مصنوعی (Claude Desktop، Cursor و …) قرار می‌دهد.
+با این پروژه، دستیارهای هوش مصنوعی مثل **Claude Desktop** یا **Cursor** به قابلیت‌های نقشه [نشان](https://platform.neshan.org) دسترسی پیدا می‌کنند — یعنی می‌توانی مستقیم در چت با آن‌ها بگویی *«مسیر خونه تا محل کارم رو با ترافیک الان نشونم بده»* یا *«نزدیک‌ترین کافه به این مختصات کجاست؟»* و جواب را همان‌جا ببینی.
 
-ساختار لایه‌ای با مدل کاری `tool → handler → service → http`، گروه‌بندی‌شده بر اساس دامنه (`search` / `routing` / `map` / `traffic` / `zipcode` / `vrp`).
+این پروژه یک [MCP Server](https://modelcontextprotocol.io) است: یک واسط استاندارد که سرویس‌های نشان را به شکلی در اختیار دستیار هوش مصنوعی می‌گذارد که خودش بتواند در لحظه تصمیم بگیرد از کدام‌شان استفاده کند.
 
-کلید API را **کلاینت** فراهم می‌کند: در حالت HTTP در هدر هر درخواست (`Neshan-Api-Key`) فرستاده می‌شود؛ در حالت stdio به‌عنوان fallback از env سرور خوانده می‌شود.
+## چه کارهایی می‌توان با آن انجام داد؟
 
-## معماری
+بعد از وصل کردن این سرور به دستیار خودت، می‌توانی به زبان معمولی از او بخواهی:
 
-```
-src/neshan_mcp/
-├── index.py             # entry point برای stdio
-├── indexHttp.py         # entry point برای HTTP
-├── createServer.py      # factory ساخت FastMCP + ثبت ابزارها + بستن client
-├── appConfig.py         # تنظیمات runtime + lookup کلید از env
-├── constants.py         # اندپوینت‌ها، نسخه‌ها، نام هدرها، نگاشت env کلید
-├── auth/
-│   └── apiKeyResolver.py   # resolve کلید: هدر کلاینت → fallback به env
-├── handlers/            # validate (schema) → فراخوان service → نرمال‌سازی خطا
-│   ├── searchHandler.py
-│   ├── routingHandler.py
-│   ├── mapHandler.py
-│   ├── trafficHandler.py
-│   ├── zipcodeHandler.py
-│   ├── vrpHandler.py
-│   ├── pointHandler.py
-│   ├── mapViewHandler.py
-│   └── shared/responseTrimmer.py
-├── schemas/             # مدل‌های pydantic برای اعتبارسنجی ورودی (per-domain)
-│   ├── search/  (searchSchema.py, common.py)
-│   ├── routing/ (routingSchema.py, common.py)
-│   ├── map/     (mapSchema.py)
-│   ├── traffic/ (trafficSchema.py)
-│   ├── zipcode/ (zipcodeSchema.py)
-│   ├── vrp/     (vrpSchema.py)
-│   ├── point/   (pointSchema.py)
-│   ├── mapview/ (mapViewSchema.py)
-│   └── shared/  (validators.py)
-├── services/            # wrapper خام API (per-domain) + کلاینت پایه
-│   ├── base/    (neshanClient.py — GET/POST/bytes + retry + key injection)
-│   ├── search/  (searchService.py, types.py)
-│   ├── routing/ (routingService.py, types.py)
-│   ├── map/     (mapService.py, types.py)
-│   ├── traffic/ (trafficService.py)
-│   ├── zipcode/ (zipcodeService.py)
-│   ├── vrp/     (vrpService.py)
-│   ├── point/   (pointService.py)
-│   └── mapview/ (mapViewGenerator.py — client-side HTML gen, no API call)
-├── tools/               # تعریف نازک ابزار MCP که به handler delegate می‌کند
-│   ├── searchTools.py
-│   ├── routingTools.py
-│   ├── mapTools.py
-│   ├── trafficTools.py
-│   ├── zipcodeTools.py
-│   ├── vrpTools.py
-│   ├── pointTools.py
-│   ├── mapViewTools.py
-│   └── utilityTools.py
-├── types/               # مدل‌های مقدار مشترک (Coordinate و …)
-├── utils/               # apiErrorHandler, logger, coords
-└── apps/                # (placeholder) لایه‌ی UI تعاملی؛ فعلاً پیاده‌سازی نشده
+- **جستجوی مکان** — پیدا کردن آدرس، کسب‌وکار یا نقطه‌ی موردنظر با اسم یا توضیح
+- **تبدیل آدرس ↔ مختصات** — گرفتن آدرس از روی مختصات جغرافیایی یا برعکس
+- **مسیریابی** — مسیر بین دو یا چند نقطه برای خودرو، موتور یا پیاده؛ با ترافیک لحظه‌ای، بدون ترافیک، یا بر اساس الگوی معمول/تاریخی
+- **بهینه‌سازی مسیر چند ایستگاهی (TSP)** — بهترین ترتیب سر زدن به چند مقصد
+- **تطبیق مسیر با جاده (Map Matching)** — تبدیل یک رشته نقطه GPS خام به مسیر واقعی روی جاده
+- **ناحیه دسترس‌پذیری (Isochrone)** — مشخص کردن محدوده‌ای که در زمان/فاصله مشخص از یک نقطه قابل دسترسی است
+- **ماتریس فاصله/زمان** — فاصله و زمان سفر بین چند مبدا و مقصد به‌صورت هم‌زمان
+- **مسیریابی ناوگان (VRP)** — تخصیص بهینه‌ی سفارش‌ها به چند وسیله نقلیه با در نظر گرفتن ظرفیت و بازه زمانی
+- **نقشه استاتیک** — گرفتن یک تصویر نقشه از یک نقطه، یا نقشه‌ای با کمانی بین مبدا و مقصد
+- **نقشه تعاملی** — ساخت یک صفحه نقشه با نشانگر و مسیر، قابل باز کردن در مرورگر
+- **تحلیل ترافیک** — وضعیت ترافیک یک منطقه در ۲۴ ساعت گذشته
+- **کد پستی** — تبدیل کد پستی ۱۰رقمی به آدرس و مختصات
+- **جزئیات یک مکان** — گرفتن اطلاعات کامل یک نتیجه جستجو (آدرس، دسته‌بندی، محله)
+
+همه‌ی این‌ها از طریق مکالمه‌ی طبیعی با دستیار اتفاق می‌افتد؛ خودت لازم نیست چیزی درباره‌ی API یا اندپوینت‌ها بدانی.
+
+## سریع‌ترین راه: استفاده از سرور آماده
+
+نیازی به نصب یا اجرای چیزی نیست — کافی است این را به تنظیمات کلاینت خودت (Claude Desktop، Cursor و…) اضافه کنی:
+
+```json
+{
+  "mcpServers": {
+    "neshan": {
+      "type": "http",
+      "url": "https://neshan-mcp.example.com/mcp",
+      "headers": { "Neshan-Api-Key": "کلید_شما_اینجا" }
+    }
+  }
+}
 ```
 
-مسئولیت هر لایه:
-- **tools**: رابط MCP (امضای تمیز + docstring که مدل می‌بیند)؛ فقط handler را صدا می‌زند.
-- **handlers**: ورودی را با schema اعتبارسنجی می‌کند، service را صدا می‌زند، و خطاها را به فرمت یکدست تبدیل می‌کند (با decoratorِ `handle_api_errors`).
-- **services**: نگاشت پارامتر به اندپوینت و فراخوان API؛ هیچ دانشی از MCP ندارد.
-- **services/base**: تنها نقطه‌ای که با شبکه و کلید سروکار دارد (retry، تزریق کلید، نرمال‌سازی خطا).
+> آدرس بالا نمونه است؛ آن را با آدرس واقعی سرور جایگزین کن.
 
-> نکته: نام فایل‌ها به‌صورت camelCase نگه داشته شده تا با چیدمان مرجع هم‌خوان باشد (برخلاف قرارداد snake_case معمول پایتون). این یک انتخاب آگاهانه برای هم‌خوانی ساختاری است.
+کلید API را هم از [پنل نشان](https://platform.neshan.org) بگیر (بخش «گرفتن و تنظیم کلید API» را ببین). همین — دستیارت الان به قابلیت‌های نقشه‌ی نشان دسترسی دارد.
 
-افزودن سرویس جدید در یک دامنه: متدش را به `<domain>Service` و `<domain>Schema` و `<domain>Handler` و `<domain>Tools` اضافه کن. افزودن دامنه‌ی جدید: یک پوشه در هر چهار لایه بساز و آن را در `tools/__init__.py:register_all` ثبت کن.
+اگر ترجیح می‌دهی سرور را خودت روی سیستم/سرور خودت اجرا کنی، ادامه‌ی این راهنما را دنبال کن.
 
-## ابزارها
+## چیزهایی که لازم داری (برای اجرای خودت)
 
-| ابزار | دامنه | اندپوینت نشان | توضیح |
-|---|---|---|---|
-| `neshan_search` | search | `/v1/search` | جستجوی مکان |
-| `neshan_reverse_geocode` | search | `/v5/reverse` | تبدیل مختصات به آدرس |
-| `neshan_geocode` | search | `/geocoding/v1/` | تبدیل آدرس به مختصات |
-| `neshan_geocode_plus` | search | `/geocoding/v1/plus` | جئوکدینگ پیشرفته |
-| `neshan_direction` | routing | `/v4/direction`, `/v4/direction/no-traffic`, `/v1/direction/typical`, `/v1/direction/historical` | مسیریابی (car/motorcycle/pedestrian)؛ انتخاب حالت ترافیک با `traffic_mode`: `live` (لحظه‌ای)، `no_traffic` (بدون ترافیک)، `typical` (الگوی ترافیک، هر ۱۵ دقیقه به‌روزرسانی)، `historical` (زمان آینده بر اساس داده‌های تاریخی — فقط تهران/مشهد/کرج) |
-| `neshan_isochrone` | routing | `/v1/isochrone` | محاسبه ناحیه دسترس‌پذیر از یک نقطه در زمان/فاصله مشخص |
-| `neshan_distance_matrix` | routing | `/v1/distance-matrix` | ماتریس فاصله/زمان چند نقطه |
-| `neshan_tsp` | routing | `/v3/trip` | بهینه‌سازی مسیر چندایستگاهی (TSP) |
-| `neshan_map_matching` | routing | `/v3/map-matching` (POST) | تطبیق مسیر با جاده‌ها |
-| `neshan_static_map` | map | `/v5/static` | تصویر نقشه استاتیک |
-| `neshan_static_map_arc` | map | `/v4/static/arc` | تصویر نقشه استاتیک با رسم کمان بین مبدا و مقصد |
-| `neshan_traffic_analytics` | traffic | `/navigation/traffic/analytics/v0.1` | تحلیل ترافیک تاریخی: KPI کلی، نمودار ۲۴ساعته، نقشه استاتیک PNG |
-| `neshan_zipcode` | zipcode | `/zipcode/simple` | تبدیل کد پستی ۱۰رقمی به استان، شهر، محله، آدرس و مختصات |
-| `neshan_vrp_logistic` | vrp | `/vrp/logistic` (POST) | حل مسئله مسیریابی ناوگان (VRP): تخصیص job به وسیله‌ها با رعایت ظرفیت، مهارت و پنجره زمانی |
-| `neshan_get_point_by_hash` | point | `/v1/point` | دریافت اطلاعات کامل یک مکان (آدرس، دسته‌بندی، مختصات، محله) با استفاده از poiHash برگشتی از neshan_search |
-| `neshan_map_view` | mapview | — (client-side) | تولید فایل HTML نقشه interactive با SDK نشان؛ نمایش markers با popup، رسم مسیر از polyline یا مختصات، auto-fit zoom، لایه ترافیک |
-
-تمام مختصات `(lat, lng)` اعشاری.
+1. **Python 3.10 یا بالاتر**
+2. **کلید API نشان** — از [platform.neshan.org](https://platform.neshan.org) ثبت‌نام کن و کلید سرویس(های) موردنظرت را بگیر (رایگان برای شروع)
+3. یکی از این کلاینت‌ها: Claude Desktop، Cursor، یا هر کلاینت دیگری که از MCP پشتیبانی می‌کند
 
 ## نصب
 
@@ -101,45 +58,54 @@ src/neshan_mcp/
 pip install -e .
 ```
 
-نیازمند Python 3.10+ .
+## گرفتن و تنظیم کلید API
 
-## پیکربندی (کلید)
+کلید را از [پنل نشان](https://platform.neshan.org) بگیر، سپس یکی از دو روش زیر را انتخاب کن:
 
-**حالت HTTP — کلید در هدر هر درخواست:**
-
-| هدر | کاربرد |
-|---|---|
-| `Neshan-Api-Key` | کلید برای همه‌ی سرویس‌ها |
-| `Neshan-Api-Key-<service>` | override برای یک سرویس (مثل `Neshan-Api-Key-static`) |
-| `Api-Key` | alias |
-
-نام سرویس‌ها: `search`، `geocoding`، `routing`، `historical`، `isochrone`، `matrix`، `tsp`، `static`، `map_matching`، `traffic`، `zipcode`، `vrp`.
-
-**حالت stdio — fallback از env:**
+**روش ۱ — فایل env (ساده‌ترین حالت، برای Claude Desktop توصیه می‌شود):**
 
 ```bash
-cp .env.example .env   # NESHAN_API_KEY را قرار بده
+cp .env.example .env
+# داخل فایل .env مقدار NESHAN_API_KEY را با کلید خودت جایگزین کن
 ```
 
-کلیدهای نشان **service-scoped** هستند؛ هم در هدر و هم در env امکان کلید جدا برای هر سرویس وجود دارد.
+**روش ۲ — ارسال کلید در هدر درخواست (برای حالت HTTP):**
+
+اگر سرور را به‌صورت HTTP اجرا می‌کنی، می‌توانی کلید را در هر اتصال جداگانه بفرستی و نیازی به فایل env نیست (بخش «اتصال کلاینت» را ببین).
 
 ## اجرا
 
 ```bash
-neshan-mcp          # stdio (پیش‌فرض)
-neshan-mcp-http     # HTTP
+neshan-mcp          # حالت پیش‌فرض، برای Claude Desktop / Cursor
 ```
 
-### Docker
+یا با Docker:
 
 ```bash
 docker build -t neshan-mcp .
 docker run -p 3000:3000 --env-file .env neshan-mcp
 ```
 
-## اتصال کلاینت
+## اتصال به Claude Desktop
 
-### HTTP (کلید در هدر)
+فایل تنظیمات Claude Desktop را باز کن و این را اضافه کن:
+
+```json
+{
+  "mcpServers": {
+    "neshan": {
+      "command": "neshan-mcp",
+      "env": { "NESHAN_API_KEY": "کلید_شما_اینجا" }
+    }
+  }
+}
+```
+
+Claude Desktop را ری‌استارت کن — از این به بعد می‌توانی مستقیم درباره‌ی نقشه، مسیر و آدرس از آن بپرسی.
+
+## اتصال از طریق HTTP (Cursor یا کلاینت‌های دیگر)
+
+اگر سرور را با `neshan-mcp-http` اجرا کرده‌ای:
 
 ```json
 {
@@ -147,43 +113,23 @@ docker run -p 3000:3000 --env-file .env neshan-mcp
     "neshan": {
       "type": "http",
       "url": "http://localhost:3000/mcp",
-      "headers": { "Neshan-Api-Key": "your_api_key_here" }
+      "headers": { "Neshan-Api-Key": "کلید_شما_اینجا" }
     }
   }
 }
 ```
 
-```bash
-curl --location 'http://localhost:3000/mcp' \
-  --header 'Accept: application/json, text/event-stream' \
-  --header 'Content-Type: application/json' \
-  --header 'Neshan-Api-Key: <API_KEY>' \
-  --data '{"jsonrpc":"2.0","id":1,"method":"tools/call",
-           "params":{"name":"neshan_reverse_geocode",
-                     "arguments":{"lat":35.6997,"lng":51.3375}}}'
-```
+## سوالات متداول
 
-### Claude Desktop (stdio، کلید از env)
+**آیا کلید API رایگان است؟**
+نشان یک پلن رایگان برای شروع دارد؛ برای مصرف بیشتر باید طبق پلن‌های [platform.neshan.org](https://platform.neshan.org) ارتقا بدهی.
 
-```json
-{
-  "mcpServers": {
-    "neshan": {
-      "command": "neshan-mcp",
-      "env": { "NESHAN_API_KEY": "your_api_key_here" }
-    }
-  }
-}
-```
+**می‌توانم فقط بخشی از سرویس‌ها را فعال کنم؟**
+بله — برای هر سرویس (جستجو، مسیریابی، نقشه استاتیک و…) می‌توانی کلید جدا بگیری و جدا تنظیم کنی؛ کافی است در فایل `.env` مقدار `NESHAN_KEY_<SERVICE>` را ست کنی (مثلاً `NESHAN_KEY_STATIC`).
 
-## نکات تأیید (قبل از production)
+**خطای مربوط به کلید می‌گیرم، چه کار کنم؟**
+مطمئن شو کلید درست کپی شده و در پنل نشان برای IP/دامنه‌ای که از آن درخواست می‌زنی محدودیتی نگذاشته باشی.
 
-- `neshan_reverse_geocode` روی `v5` است؛ اگر اکانتت `v4` است، `Endpoints.REVERSE` را در `constants.py` عوض کن.
-- `neshan_map_matching`: از `/v3/map-matching` (POST، بدنه `{"path": "lat,lng|lat,lng"}`) استفاده می‌کند؛ برای override مسیر، `NESHAN_MAP_MATCHING_PATH` را ست کن.
-- `neshan_map_view`: برای نمایش نقشه پایه نشان به **Web SDK key** نیاز دارد (جدا از کلید سرویس)؛ از [platform.neshan.org](https://platform.neshan.org) بگیر و در پارامتر `map_key` بفرست. بدون آن، markers و مسیرها روی پس‌زمینه سفید نمایش داده می‌شوند. مسیر ذخیره فایل HTML پیش‌فرض `$TMPDIR` است؛ با `NESHAN_MAP_OUTPUT_DIR` قابل تغییر است.
-- نقشه استاتیک کلید را به‌صورت query param (`key=`) می‌گیرد نه هدر — در `services/base/neshanClient.py` مدیریت شده است.
+## مستندات و پشتیبانی
 
-## مرجع
-
-- مستندات نشان: https://platform.neshan.org/docs
-- شروع به کار API: https://platform.neshan.org/api/getting-started
+- مستندات کامل API نشان: https://platform.neshan.org/docs
