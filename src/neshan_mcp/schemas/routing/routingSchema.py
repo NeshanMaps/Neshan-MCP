@@ -2,12 +2,16 @@
 
 from __future__ import annotations
 
+from datetime import datetime
+
 from pydantic import BaseModel, Field, field_validator, model_validator
 
 from typing import Literal
 
 from ..shared import Latitude, Longitude, validate_pairs
 from .common import Vehicle
+
+_HISTORICAL_DATE_FORMAT = "%Y-%m-%dT%H:%M"
 
 
 class DirectionInput(BaseModel):
@@ -75,6 +79,15 @@ class HistoricalDirectionInput(BaseModel):
     date_time: str  # YYYY-MM-DDThh:mm, up to one week ahead
     avoid_traffic_zone: bool = False
     alternative: bool = False
+
+    @field_validator("date_time")
+    @classmethod
+    def _check_date_time(cls, v):
+        try:
+            datetime.strptime(v, _HISTORICAL_DATE_FORMAT)
+        except ValueError:
+            raise ValueError(f"date_time must match 'YYYY-MM-DDThh:mm', got: {v!r}") from None
+        return v
 
 
 class IsochroneInput(BaseModel):

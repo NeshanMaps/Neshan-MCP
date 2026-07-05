@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 import tempfile
-import time
+import uuid
 from typing import Any
 
 from ..schemas.mapview import MapViewInput, MarkerInput, RouteInput
@@ -43,7 +43,7 @@ async def handle_map_view(
 
     html = generate_map_html(data)
 
-    filename = f"neshan_map_{int(time.time())}.html"
+    filename = f"neshan_map_{uuid.uuid4().hex}.html"
     filepath = os.path.join(_OUTPUT_DIR, filename)
     with open(filepath, "w", encoding="utf-8") as f:
         f.write(html)

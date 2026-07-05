@@ -2,16 +2,30 @@
 
 from __future__ import annotations
 
+import html
 import json
 import math
-from typing import Any
 
-from ...schemas.mapview import MapViewInput, RouteInput
+from ...schemas.mapview import MapViewInput
+from ...utils import get_logger
 
+logger = get_logger("neshan_mcp.mapview")
 
 # CDN رسمی نشان (از README پکیج)
 _SDK_CSS = "https://static.neshan.org/sdk/mapboxgl/v1.13.2/neshan-sdk/v1.1.3/index.css"
 _SDK_JS  = "https://static.neshan.org/sdk/mapboxgl/v1.13.2/neshan-sdk/v1.1.3/index.js"
+
+
+def _js_string(value: str) -> str:
+    """JSON-encode a string for embedding inside an inline <script> block.
+
+    json.dumps alone escapes JS syntax but not HTML: a literal '</script>'
+    substring inside the resulting string is still recognized by the HTML
+    tokenizer as closing the surrounding <script> tag, regardless of JS-level
+    quoting. Escaping the slash defuses that without changing the decoded
+    JS string value.
+    """
+    return json.dumps(value).replace("</", "<\\/")
 
 
 # ---- polyline decoder (Google/Neshan encoded polyline) ----
@@ -49,13 +63,13 @@ def _auto_center(data: MapViewInput) -> tuple[float, float, int]:
     for m in data.markers:
         all_points.append((m.lat, m.lng))
 
-    for r in data.routes:
+    for i, r in enumerate(data.routes):
         if r.encoded_polyline:
             try:
                 pts = _decode_polyline(r.encoded_polyline)
                 all_points.extend((p[0], p[1]) for p in pts)
             except Exception:
-                pass
+                logger.warning("failed to decode encoded_polyline for route %d; excluded from auto-center", i)
         elif r.coordinates:
             all_points.extend((p[0], p[1]) for p in r.coordinates)
 
@@ -83,12 +97,15 @@ def _build_markers_js(data: MapViewInput) -> str:
     if not data.markers:
         return ""
     lines = []
-    for i, m in enumerate(data.markers):
-        popup_html = f"<b>{m.label}</b><br/>{m.lat:.6f}, {m.lng:.6f}" if m.label else f"{m.lat:.6f}, {m.lng:.6f}"
+    for m in data.markers:
+        label_html = (
+            f"<b>{html.escape(m.label)}</b><br/>{m.lat:.6f}, {m.lng:.6f}"
+            if m.label else f"{m.lat:.6f}, {m.lng:.6f}"
+        )
         lines.append(f"""
-    new nmp_mapboxgl.Marker({{ color: '{m.color}' }})
+    new nmp_mapboxgl.Marker({{ color: {_js_string(m.color)} }})
         .setLngLat([{m.lng}, {m.lat}])
-        .setPopup(new nmp_mapboxgl.Popup({{ offset: 25 }}).setHTML(`{popup_html}`))
+        .setPopup(new nmp_mapboxgl.Popup({{ offset: 25 }}).setHTML({_js_string(label_html)}))
         .addTo(map);""")
     return "\n".join(lines)
 
@@ -104,7 +121,7 @@ def _build_routes_js(data: MapViewInput) -> str:
                 pts = _decode_polyline(r.encoded_polyline)
                 coords = [[p[1], p[0]] for p in pts]  # [lng, lat] برای mapbox
             except Exception:
-                pass
+                logger.warning("failed to decode encoded_polyline for route %d; route skipped", i)
         elif r.coordinates:
             coords = [[p[1], p[0]] for p in r.coordinates]  # [lng, lat]
 
@@ -121,7 +138,7 @@ def _build_routes_js(data: MapViewInput) -> str:
         type: 'geojson',
         data: {{
             type: 'Feature',
-            properties: {{ label: '{label}' }},
+            properties: {{ label: {_js_string(label)} }},
             geometry: {{ type: 'LineString', coordinates: {coords_json} }}
         }}
     }});
@@ -130,7 +147,7 @@ def _build_routes_js(data: MapViewInput) -> str:
         type: 'line',
         source: '{source_id}',
         layout: {{ 'line-join': 'round', 'line-cap': 'round' }},
-        paint: {{ 'line-color': '{r.color}', 'line-width': 5, 'line-opacity': 0.85 }}
+        paint: {{ 'line-color': {_js_string(r.color)}, 'line-width': 5, 'line-opacity': 0.85 }}
     }});""")
     return "\n".join(lines)
 
@@ -138,20 +155,17 @@ def _build_routes_js(data: MapViewInput) -> str:
 def generate_map_html(data: MapViewInput) -> str:
     """تولید HTML کامل نقشه interactive نشان."""
 
-    center_lat, center_lng, zoom = _auto_center(data)
-    # اگه کاربر خودش مرکز داد، اون رو اولویت بده
     if data.markers or data.routes:
-        pass  # از auto_center استفاده کن
+        center_lat, center_lng, zoom = _auto_center(data)
     else:
-        center_lat = data.center_lat
-        center_lng = data.center_lng
-        zoom = data.zoom
+        center_lat, center_lng, zoom = data.center_lat, data.center_lng, data.zoom
 
     markers_js = _build_markers_js(data)
     routes_js = _build_routes_js(data)
     has_routes = bool(data.routes and routes_js.strip())
 
     map_key = data.map_key or "YOUR_WEB_MAP_KEY"
+    title_html = html.escape(data.title)
     traffic_str = "true" if data.show_traffic else "false"
     poi_str = "true" if data.show_poi else "false"
 
@@ -165,7 +179,7 @@ def generate_map_html(data: MapViewInput) -> str:
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>{data.title}</title>
+<title>{title_html}</title>
 <link rel="stylesheet" href="{_SDK_CSS}"/>
 <style>
   * {{ box-sizing: border-box; margin: 0; padding: 0; }}
@@ -189,7 +203,7 @@ def generate_map_html(data: MapViewInput) -> str:
 <body>
 <div id="header">
   <span class="logo">نشان</span>
-  <span class="title">{data.title}</span>
+  <span class="title">{title_html}</span>
 </div>
 <div id="map"></div>
 <script src="{_SDK_JS}"></script>
@@ -202,7 +216,7 @@ var map = new nmp_mapboxgl.Map({{
     minZoom: 2,
     maxZoom: 21,
     trackResize: true,
-    mapKey: '{map_key}',
+    mapKey: {_js_string(map_key)},
     poi: {poi_str},
     traffic: {traffic_str},
 }});
