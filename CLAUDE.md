@@ -76,5 +76,5 @@ Create a subdirectory in each of `tools/`, `handlers/`, `schemas/`, and `service
 ## Known caveats
 
 - `neshan_reverse_geocode` uses `/v5/reverse`; some accounts require `/v4/reverse` — change `Endpoints.REVERSE` in `constants.py`.
-- `neshan_map_matching` endpoint path is **unverified** against live docs; override via `NESHAN_MAP_MATCHING_PATH` env var.
+- `neshan_map_matching` uses `/v3/map-matching` (POST, `{"path": "lat,lng|lat,lng"}`); override via `NESHAN_MAP_MATCHING_PATH` env var.
 - `neshan_map_view` generates an HTML file using the Neshan Web SDK CDN (`static.neshan.org`). A **Web SDK key** (`map_key` arg) is required for base map tiles to load; without it markers and routes render on a blank background. Web SDK keys are separate from service keys and are obtained from [platform.neshan.org](https://platform.neshan.org). Output directory defaults to `$TMPDIR`; override with `NESHAN_MAP_OUTPUT_DIR` env var.

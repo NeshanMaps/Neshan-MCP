@@ -21,7 +21,6 @@ class NeshanClient:
         self._client = httpx.AsyncClient(
             base_url=settings.base_url,
             timeout=settings.timeout,
-            headers={"Accept": "application/json"},
         )
 
     async def aclose(self) -> None:
@@ -63,7 +62,7 @@ class NeshanClient:
                 "(HTTP mode) or set NESHAN_API_KEY in the environment (stdio mode).",
             )
 
-        headers: dict[str, str] = {}
+        headers: dict[str, str] = {"Accept": "application/json" if expect_json else "*/*"}
         params = {k: v for k, v in (params or {}).items() if v is not None}
         if key_in_query:
             params["key"] = key

@@ -122,14 +122,11 @@ def register(mcp, client: NeshanClient) -> None:
     async def neshan_map_matching(path_points: list[list[float]]):
         """Snap a sequence of GPS points onto the road network (map matching).
 
-        NOTE: endpoint/params are unverified in this build.
-
         Args:
             path_points: The recorded track as [[lat, lng], ...].
 
         Returns:
-            Raw Neshan map-matching response (shape unverified — see the
-            NESHAN_MAP_MATCHING_PATH note in this server's config).
+            Raw Neshan map-matching response.
         """
         return await handlers.handle_map_matching(client, path_points)
 

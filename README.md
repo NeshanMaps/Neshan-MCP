@@ -84,7 +84,7 @@ src/neshan_mcp/
 | `neshan_isochrone` | routing | `/v1/isochrone` | محاسبه ناحیه دسترس‌پذیر از یک نقطه در زمان/فاصله مشخص |
 | `neshan_distance_matrix` | routing | `/v1/distance-matrix` | ماتریس فاصله/زمان چند نقطه |
 | `neshan_tsp` | routing | `/v3/trip` | بهینه‌سازی مسیر چندایستگاهی (TSP) |
-| `neshan_map_matching` | routing | ⚠️ نیازمند تأیید | تطبیق مسیر با جاده‌ها |
+| `neshan_map_matching` | routing | `/v3/map-matching` (POST) | تطبیق مسیر با جاده‌ها |
 | `neshan_static_map` | map | `/v5/static` | تصویر نقشه استاتیک |
 | `neshan_static_map_arc` | map | `/v4/static/arc` | تصویر نقشه استاتیک با رسم کمان بین مبدا و مقصد |
 | `neshan_traffic_analytics` | traffic | `/navigation/traffic/analytics/v0.1` | تحلیل ترافیک تاریخی: KPI کلی، نمودار ۲۴ساعته، نقشه استاتیک PNG |
@@ -179,7 +179,7 @@ curl --location 'http://localhost:3000/mcp' \
 ## نکات تأیید (قبل از production)
 
 - `neshan_reverse_geocode` روی `v5` است؛ اگر اکانتت `v4` است، `Endpoints.REVERSE` را در `constants.py` عوض کن.
-- `neshan_map_matching`: مسیر و نام پارامتر اندپوینت **تأیید نشده**؛ با مستندات زنده تطبیق بده یا `NESHAN_MAP_MATCHING_PATH` را ست کن.
+- `neshan_map_matching`: از `/v3/map-matching` (POST، بدنه `{"path": "lat,lng|lat,lng"}`) استفاده می‌کند؛ برای override مسیر، `NESHAN_MAP_MATCHING_PATH` را ست کن.
 - `neshan_map_view`: برای نمایش نقشه پایه نشان به **Web SDK key** نیاز دارد (جدا از کلید سرویس)؛ از [platform.neshan.org](https://platform.neshan.org) بگیر و در پارامتر `map_key` بفرست. بدون آن، markers و مسیرها روی پس‌زمینه سفید نمایش داده می‌شوند. مسیر ذخیره فایل HTML پیش‌فرض `$TMPDIR` است؛ با `NESHAN_MAP_OUTPUT_DIR` قابل تغییر است.
 - نقشه استاتیک کلید را به‌صورت query param (`key=`) می‌گیرد نه هدر — در `services/base/neshanClient.py` مدیریت شده است.
 
