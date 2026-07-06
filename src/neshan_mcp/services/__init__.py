@@ -6,7 +6,6 @@ from .point import pointService
 from .routing import routingService
 from .search import searchService
 from .traffic import trafficService
-from .zipcode import zipcodeService
 from .vrp import vrpService
 
-__all__ = ["NeshanClient", "searchService", "routingService", "mapService", "trafficService", "zipcodeService", "vrpService", "pointService"]
+__all__ = ["NeshanClient", "searchService", "routingService", "mapService", "trafficService", "vrpService", "pointService"]
