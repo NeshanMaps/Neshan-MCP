@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project overview
 
 
-This is **neshan-mcp** (v0.3.0): an MCP server wrapping the [Neshan Maps Platform](https://platform.neshan.org/docs) REST API. It exposes search, geocoding, routing, isochrone, distance matrix, TSP, static maps, traffic analytics, zipcode lookup, point-by-hash lookup, and VRP as MCP tools usable by Claude Desktop, Cursor, and similar AI clients.
+This is **neshan-mcp** (v0.3.0): an MCP server wrapping the [Neshan Maps Platform](https://platform.neshan.org/docs) REST API. It exposes search, geocoding, routing, isochrone, distance matrix, TSP, static maps, traffic analytics, point-by-hash lookup, and VRP as MCP tools usable by Claude Desktop, Cursor, and similar AI clients.
 
 ## Commands
 
@@ -38,7 +38,7 @@ services/base/ NeshanClient — sole network point (httpx, retry, key injection)
 ```
 
 
-All domains (`search`, `routing`, `map`, `traffic`, `zipcode`, `vrp`, `point`) are organized in parallel across all four layers. `tools/__init__.py:register_all` is the single registration point.
+All domains (`search`, `routing`, `map`, `traffic`, `vrp`, `point`) are organized in parallel across all four layers. `tools/__init__.py:register_all` is the single registration point.
 
 
 ### Key files
@@ -54,7 +54,7 @@ All domains (`search`, `routing`, `map`, `traffic`, `zipcode`, `vrp`, `point`) a
 
 In **HTTP mode**, the client passes the key per-request:
 - `Neshan-Api-Key` — used for all services
-- `Neshan-Api-Key-<service>` — per-service override (service names: `search`, `geocoding`, `routing`, `historical`, `matrix`, `tsp`, `static`, `static_arc`, `isochrone`, `map_matching`, `traffic`, `zipcode`, `vrp`, `point`)
+- `Neshan-Api-Key-<service>` — per-service override (service names: `search`, `geocoding`, `routing`, `historical`, `matrix`, `tsp`, `static`, `static_arc`, `isochrone`, `map_matching`, `traffic`, `vrp`, `point`)
 - `Api-Key` — alias
 
 In **stdio mode**, keys fall back to env: `NESHAN_API_KEY` (default) or `NESHAN_KEY_<SERVICE>` per-service overrides (see `constants.py:KEY_OVERRIDE_ENV`).

@@ -18,8 +18,6 @@ INSTRUCTIONS = (
     "Search and routing results include neshan_links (android_web + ios) automatically. "
     "Traffic analytics returns a 24-hour congestion chart, an overall KPI score, "
     "and a static PNG map of the area. "
-    "Zipcode lookup resolves an Iranian 10-digit postal code to province, township, "
-    "zone, address, and coordinates. "
     "VRP logistic solves fleet routing problems: assigns jobs to vehicles respecting "
     "capacity, skills, and time-windows, and returns optimized routes with geometry. "
     "Point lookup fetches full details of a place (address, category, coordinates, "
