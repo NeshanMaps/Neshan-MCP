@@ -32,14 +32,14 @@
   "mcpServers": {
     "neshan": {
       "type": "http",
-      "url": "https://neshan-mcp.example.com/mcp",
+      "url": "https://platform-stage.rajman.org/mcp",
       "headers": { "Neshan-Api-Key": "کلید_شما_اینجا" }
     }
   }
 }
 ```
 
-> آدرس بالا نمونه است؛ آن را با آدرس واقعی سرور جایگزین کن.
+> آدرس سرور آماده: `https://platform-stage.rajman.org/mcp`
 
 کلید API را هم از [پنل نشان](https://platform.neshan.org) بگیر (بخش «گرفتن و تنظیم کلید API» را ببین). همین — دستیارت الان به قابلیت‌های نقشه‌ی نشان دسترسی دارد.
 

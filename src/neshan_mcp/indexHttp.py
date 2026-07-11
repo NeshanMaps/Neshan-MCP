@@ -17,7 +17,13 @@ def main() -> None:
             "'Neshan-Api-Key' header per request."
         )
     logger.info("Starting Neshan MCP (HTTP) on %s:%s", settings.host, settings.port)
-    create_server().run(transport="http", host=settings.host, port=settings.port)
+    create_server().run(
+        transport="http",
+        host=settings.host,
+        port=settings.port,
+        allowed_hosts=settings.allowed_hosts,
+        allowed_origins=settings.allowed_origins,
+    )
 
 
 if __name__ == "__main__":
