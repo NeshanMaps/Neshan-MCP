@@ -23,3 +23,7 @@ env/
 .DS_Store
 .idea/
 .vscode/
+
+# MCP bundle and vendored libs
+PlatformMCP.mcpb
+lib/
